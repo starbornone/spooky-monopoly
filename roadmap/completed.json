@@ -1,7 +1,7 @@
 {
   "schema": "name -roadmap/v1",
   "file": "completed",
-  "updatedAt": "2026-11-24T21:05:47+11:00",
+  "updatedAt": "2026-11-24T21:11:51+11:00",
   "project": {
     "key": "spooky-monopoly",
     "title": "Spooky Monopoly",
@@ -91,6 +91,20 @@
       "group": "Gameplay",
       "notes": "Added storage and qualifying-result fixtures. Verified an elf unlock on restart and after a fresh mount on the same simulated browser origin.",
       "completedAt": "2026-11-24T21:05:47+11:00"
+    },
+    {
+      "id": "cover-local-game-flow",
+      "title": "Add a regression check for the local game flow",
+      "group": "Gameplay",
+      "notes": "Added a production Chromium fixed-roll suite covering token choice, purchase and pass, special and owned landings, all 20 turns, and restart. It asserts the final cash totals and checks unlocks after reload. The property-action test separately covers an unaffordable vampire landing.",
+      "completedAt": "2026-11-24T21:11:51+11:00"
+    },
+    {
+      "id": "add-compact-play-layout",
+      "title": "Make the full game playable on phones and tablets",
+      "group": "Gameplay",
+      "notes": "Verified complete rounds in Chromium at 320 × 568, 390 × 844, and 1024 × 768. The compact dock keeps Roll, the turn, current space, and cash within reach. Checks cover horizontal overflow, 44 CSS-pixel tap targets, primary action contrast, and focus restoration. Intro and turn log are expandable.",
+      "completedAt": "2026-11-24T21:11:51+11:00"
     }
   ]
 }

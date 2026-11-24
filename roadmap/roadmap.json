@@ -1,7 +1,7 @@
 {
   "schema": "name -roadmap/v1",
   "file": "roadmap",
-  "updatedAt": "2026-11-24T21:05:47+11:00",
+  "updatedAt": "2026-11-24T21:11:51+11:00",
   "project": {
     "key": "spooky-monopoly",
     "title": "Spooky Monopoly",
@@ -14,18 +14,6 @@
       "title": "Verify a clean dependency install and production run",
       "group": "Development",
       "notes": "Phase 1 (Now). In a fresh checkout with Node.js 22 or later and pnpm 12, run install, typecheck, build and start. Record the versions and address any lockfile or setup issues found. Run this first so the other checks start from a reproducible production build. A production build and local production HTTP checks passed with installed dependencies. Clean install still needs registry access for pnpm package metadata."
-    },
-    {
-      "id": "cover-local-game-flow",
-      "title": "Add a regression check for the local game flow",
-      "group": "Gameplay",
-      "notes": "Phase 1 (Now). With Supabase settings absent, cover token selection, a property choice, the end-of-game summary after 20 turns, and restart. Use a fixed roll sequence. Cover purchase, pass, resolution of owned and special spaces, an unaffordable vampire landing, and the last turn. Capture baseline money and ownership outcomes before changing the turn controls."
-    },
-    {
-      "id": "add-compact-play-layout",
-      "title": "Make the full game playable on phones and tablets",
-      "group": "Gameplay",
-      "notes": "Phase 1 (Now). Update GameBoard.css, GameSidebar.tsx, GameSidebar.css, and TokenPicker.css to keep the board, turn, cash, current space, and Roll action reachable. Move the intro and full log into expandable sections at narrow widths. Add text labels for active and owned spaces, visible focus, 44 CSS-pixel primary targets, and at least 4.5:1 contrast for primary button text. Verify 320px and 390px widths and tablet landscape. The compact controls, expandable panels, ownership labels, and dialog sizing are implemented. Confirm layout and touch targets in a real browser at the listed viewport sizes before closing."
     },
     {
       "id": "verify-supabase-results-flow",
