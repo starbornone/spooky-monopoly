@@ -9,7 +9,7 @@ export async function GET() {
     const supabase = getStatsDatabase();
     if (!supabase) {
       return NextResponse.json(
-        { success: false, error: "Global statistics are unavailable" },
+        { success: false, error: "Global statistics are unavailable", code: "STATS_UNCONFIGURED" },
         { status: 503 }
       );
     }

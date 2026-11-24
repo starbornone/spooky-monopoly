@@ -2,78 +2,54 @@
 
 import { useEffect, useState } from "react";
 
-import { AggregatedStats, GroupStats } from "./types";
+import { loadGlobalStats, type GlobalStatsState } from "./utils/loadGlobalStats";
 
 import "./GlobalStats.css";
 
 export const GlobalStats = () => {
-  const [stats, setStats] = useState<AggregatedStats | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
+  const [state, setState] = useState<GlobalStatsState>({ status: "loading" });
+  const [attempt, setAttempt] = useState(0);
   const [activeTab, setActiveTab] = useState<
     "all" | "vampires" | "humans" | "elves"
   >("all");
 
   useEffect(() => {
-    async function fetchStats() {
-      try {
-        const response = await fetch("/api/stats");
-        const result = await response.json();
-        if (result.success && result.data) {
-          setStats(result.data);
-        } else {
-          setError(true);
-        }
-      } catch (err) {
-        console.error("Error fetching stats:", err);
-        setError(true);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchStats();
-  }, []);
+    const controller = new AbortController();
+    loadGlobalStats(controller.signal).then(result => {
+      if (!controller.signal.aborted) setState(result);
+    });
+    return () => controller.abort();
+  }, [attempt]);
 
-  if (loading) {
-    return (
-      <div className="global-stats">
-        <h2 className="global-stats__title">Global Statistics</h2>
-        <p className="global-stats__loading">Loading global stats...</p>
-      </div>
-    );
-  }
-
-  if (error || !stats) {
-    return (
-      <div className="global-stats">
-        <h2 className="global-stats__title">Global Statistics</h2>
-        <p className="global-stats__error">Unable to load stats</p>
-      </div>
-    );
-  }
-
-  const getCurrentStats = (): GroupStats & { totalGames: number } => {
-    if (activeTab === "all") {
-      return {
-        totalGames: stats.totalGames,
-        avgMoney: stats.avgMoney,
-        avgTotalValue: stats.avgTotalValue,
-        avgPropertiesOwned: stats.avgPropertiesOwned,
-        achievementCounts: stats.achievementCounts,
-        titleCounts: stats.titleCounts,
-      };
-    }
-    return {
-      totalGames: stats.groupStats[activeTab].totalGames,
-      avgMoney: stats.groupStats[activeTab].avgMoney,
-      avgTotalValue: stats.groupStats[activeTab].avgTotalValue,
-      avgPropertiesOwned: stats.groupStats[activeTab].avgPropertiesOwned,
-      achievementCounts: stats.groupStats[activeTab].achievementCounts,
-      titleCounts: stats.groupStats[activeTab].titleCounts,
+  if (state.status !== "ready") {
+    const messages = {
+      loading: "Loading global stats…",
+      unconfigured: "Shared statistics are not configured for this game.",
+      empty: "No games have been recorded yet.",
+      error: "Unable to load shared statistics."
     };
-  };
 
-  const currentStats = getCurrentStats();
+    return (
+      <div className="global-stats">
+        <h2 className="global-stats__title">Global Statistics</h2>
+        <p className="global-stats__status" role="status">{messages[state.status]}</p>
+        {state.status === "error" && (
+          <button
+            className="global-stats__tab"
+            onClick={() => {
+              setState({ status: "loading" });
+              setAttempt(previous => previous + 1);
+            }}
+          >
+            Retry shared statistics
+          </button>
+        )}
+      </div>
+    );
+  }
+
+  const stats = state.data;
+  const currentStats = activeTab === "all" ? stats : stats.groupStats[activeTab];
   const achievements = Object.entries(currentStats.achievementCounts).sort(
     ([, a], [, b]) => b - a
   );
@@ -96,6 +72,7 @@ export const GlobalStats = () => {
         {Object.entries(groupLabels).map(([key, label]) => (
           <button
             key={key}
+            aria-pressed={activeTab === key}
             className={`global-stats__tab ${activeTab === key ? "global-stats__tab--active" : ""}`}
             onClick={() => setActiveTab(key as typeof activeTab)}
           >
@@ -103,6 +80,8 @@ export const GlobalStats = () => {
           </button>
         ))}
       </div>
+
+      {currentStats.totalGames === 0 && <p className="global-stats__status">No games recorded for this group.</p>}
 
       <div className="global-stats__section">
         <div className="global-stats__stat">

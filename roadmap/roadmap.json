@@ -1,7 +1,7 @@
 {
   "schema": "name -roadmap/v1",
   "file": "roadmap",
-  "updatedAt": "2026-11-24T20:53:23+11:00",
+  "updatedAt": "2026-11-24T21:05:47+11:00",
   "project": {
     "key": "spooky-monopoly",
     "title": "Spooky Monopoly",
@@ -13,13 +13,7 @@
       "id": "verify-clean-install",
       "title": "Verify a clean dependency install and production run",
       "group": "Development",
-      "notes": "Phase 1 (Now). In a fresh checkout with Node.js 22 or later and pnpm 12, run install, typecheck, build and start. Record the versions and address any lockfile or setup issues found. Run this first so the other checks start from a reproducible production build."
-    },
-    {
-      "id": "cover-legacy-url-compatibility",
-      "title": "Check the original event URLs alongside the root routes",
-      "group": "Routing",
-      "notes": "Phase 1 (Now). Cover the game page, GET stats, and POST submit at both URL forms. Verify that the aliases retain the handler methods and response behaviour. Check next.config.ts and both route families against the production server, including the expected responses with Supabase absent."
+      "notes": "Phase 1 (Now). In a fresh checkout with Node.js 22 or later and pnpm 12, run install, typecheck, build and start. Record the versions and address any lockfile or setup issues found. Run this first so the other checks start from a reproducible production build. A production build and local production HTTP checks passed with installed dependencies. Clean install still needs registry access for pnpm package metadata."
     },
     {
       "id": "cover-local-game-flow",
@@ -50,18 +44,6 @@
       "title": "Add regression coverage for browser token unlocks",
       "group": "Gameplay",
       "notes": "Phase 1 (Now). Cover a fresh browser origin, a qualifying unlock, and the token selection available after restart and reload in the same origin. Verify that the newly unlocked faction is explained in the results and available in the picker on restart and reload."
-    },
-    {
-      "id": "clarify-statistics-states",
-      "title": "Distinguish empty, unconfigured, and failed statistics",
-      "group": "Global statistics",
-      "notes": "Phase 1 (Now). In GlobalStats.tsx, explain why shared results are unavailable or empty, and offer retry for transient failures. Keep the local result and restart control usable while statistics are loading or unavailable."
-    },
-    {
-      "id": "cover-stats-unavailable-states",
-      "title": "Cover unavailable and empty statistics states",
-      "group": "Global statistics",
-      "notes": "Phase 1 (Now). Distinguish missing configuration and database errors from a successful zero-game response. Verify the game summary and restart remain available. Use fixtures for the zero-game response, missing configuration, and a transient failure and recovery."
     },
     {
       "id": "verify-supabase-results-flow",

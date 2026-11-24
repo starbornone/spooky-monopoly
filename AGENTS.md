@@ -13,7 +13,7 @@ Spooky Monopoly (`spooky-monopoly`) is a single-player browser property game ori
 
 ## Working agreements
 
-Use Node.js 22 or later and pnpm 12. Run `pnpm install` to install dependencies, `pnpm dev` for local development, `pnpm typecheck` for TypeScript checks, and `pnpm build` followed by `pnpm start` to verify the production app. The repository currently has no test or lint script. Follow the [manual checks](docs/development.md) for the area you change.
+Use Node.js 22 or later and pnpm 12. Run `pnpm install` to install dependencies, `pnpm dev` for local development, `pnpm typecheck` for TypeScript checks, and `pnpm build` followed by `pnpm start` to verify the production app. Run `pnpm test:routes` after building to check production routing. Follow the [manual checks](docs/development.md) for the area you change.
 
 The game must remain playable with no Supabase configuration. For statistics work, use the existing table contract and configuration documented in [Getting started](docs/getting-started.md). Keep `.env.local` and generated files out of commits. Check both current and original Weird Web October URLs when changing routing.
 

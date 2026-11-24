@@ -29,7 +29,8 @@ Use an existing project with the `wwo_2025_spooky_game_stats` table and policies
 | `node` or `pnpm` is missing, or installation reports an engine mismatch | Confirm the prerequisite versions in the same shell you use to run the app. |
 | The install reports DNS, registry, or package download errors | Verify package registry access. Gameplay can run without Supabase once dependencies are available. |
 | The browser cannot reach the game | Confirm `pnpm dev` is still running and open the address it prints. |
-| The sidebar says **Unable to load stats** | Without Supabase settings this is expected. If you configured them, check the project reference, key, table, and read policy. Check the terminal for handler errors. |
+| The sidebar says shared statistics are not configured | The game is playable. Set both Supabase values to enable shared results. |
+| The sidebar says **Unable to load shared statistics** | Retry first. If the error persists, check the Supabase project reference, key, table, read policy, and handler logs. A successful request with zero games shows an empty state. |
 | Tokens you earned are locked again | Use the same browser profile and origin. Clearing site data removes saved unlocks. |
 
 The supported local workflow uses Node.js. Static-only hosting cannot run the statistics handlers. See [Development](development.md) for a production build and [Architecture](architecture.md) for the URLs to check.

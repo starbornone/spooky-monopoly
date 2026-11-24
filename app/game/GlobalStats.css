@@ -13,6 +13,11 @@
   margin: 0;
 }
 
+.global-stats__status {
+  color: var(--color-timberwolf);
+  margin: 0;
+}
+
 .global-stats__tabs {
   display: flex;
   gap: 0.5rem;

@@ -1,7 +1,7 @@
 {
   "schema": "name -roadmap/v1",
   "file": "completed",
-  "updatedAt": "2026-11-24T20:43:13+11:00",
+  "updatedAt": "2026-11-24T21:05:47+11:00",
   "project": {
     "key": "spooky-monopoly",
     "title": "Spooky Monopoly",
@@ -49,6 +49,27 @@
       "group": "Documentation",
       "notes": "The README links to the guides, agent instructions, and structured roadmap. The first inventory uses its creation date for earlier work without a recorded completion timestamp.",
       "completedAt": "2026-11-24T20:43:13+11:00"
+    },
+    {
+      "id": "cover-legacy-url-compatibility",
+      "title": "Check the original event URLs alongside the root routes",
+      "group": "Routing",
+      "notes": "Verified both production page URLs, the expected API methods, 405 on mismatched methods, and the 503 payloads without Supabase using pnpm test:routes after a production build.",
+      "completedAt": "2026-11-24T21:05:47+11:00"
+    },
+    {
+      "id": "clarify-statistics-states",
+      "title": "Distinguish empty, unconfigured, and failed statistics",
+      "group": "Global statistics",
+      "notes": "The end-game sidebar distinguishes missing configuration, empty results, and retryable failure. Restart remains available.",
+      "completedAt": "2026-11-24T21:05:47+11:00"
+    },
+    {
+      "id": "cover-stats-unavailable-states",
+      "title": "Cover unavailable and empty statistics states",
+      "group": "Global statistics",
+      "notes": "Added request-state fixtures, checked missing configuration through production routes, and verified retry to the empty state during a simulated full game.",
+      "completedAt": "2026-11-24T21:05:47+11:00"
     }
   ]
 }

@@ -9,7 +9,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "typecheck": "next typegen && tsc --noEmit"
+    "typecheck": "next typegen && tsc --noEmit",
+    "test:routes": "node --test tests/routes.test.mjs",
+    "test": "node --experimental-strip-types --test tests/global-stats.test.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.119.2",
