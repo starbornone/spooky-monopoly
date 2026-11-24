@@ -37,7 +37,9 @@ For the fairness pilot, play paired matches with the same recorded die sequence 
 
 ## Executable checks
 
-Run `pnpm test` for the match rules and command tests.
+Run `pnpm test` for the match rules and command tests. Run `pnpm check:pilot-balance` to repeat the seeded balance simulation. The simulation plays each of 1,000 roll sequences twice with the starting seat swapped. One policy buys whenever the player can afford a property. The other leaves at least $300 after a purchase.
+
+With these policies, the first seat won 1,114 of 2,000 matches (55.7%), the second seat won 870 (43.5%), and 16 were ties. The first seat averaged 29.16 more points. Use this as a baseline for human playtesting. Keep the random first seat and current prices until the pilot shows how people actually play.
 
 ## Server integration
 
