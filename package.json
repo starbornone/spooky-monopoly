@@ -11,7 +11,7 @@
     "start": "next start",
     "typecheck": "next typegen && tsc --noEmit",
     "test:routes": "node --test tests/routes.test.mjs tests/pilot-routes.test.mjs",
-    "test:browser": "node --test tests/game-browser.test.mjs",
+    "test:browser": "node --test tests/game-browser.test.mjs tests/pilot-browser.test.mjs",
     "check:pilot-balance": "node --experimental-strip-types scripts/check-pilot-balance.mjs",
     "test": "node --experimental-strip-types --test tests/global-stats.test.mjs tests/pilot-match.test.mjs tests/property-actions.test.mjs tests/solo-rules.test.mjs tests/token-unlocks.test.mjs"
   },

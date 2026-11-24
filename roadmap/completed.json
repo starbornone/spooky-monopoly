@@ -140,6 +140,20 @@
       "group": "Multiplayer",
       "notes": "Implemented and verified server-side turn resolution with room-scoped seat authentication, revision checks and idempotent receipts. SQLite persists state and receipts together. The production HTTP test races identical actions and forces a receipt insertion error to verify rollback.",
       "completedAt": "2026-11-24T21:59:27+11:00"
+    },
+    {
+      "id": "add-private-invite-rooms",
+      "title": "Let two players join a private match by invite",
+      "group": "Multiplayer",
+      "notes": "Implemented the Play with a friend entry, one-use invitations, separate browser credentials, editable names and readiness controls. Production HTTP tests verify room isolation. Chromium verifies two profiles joining, readying and retaining the guest seat after reload at 320 CSS pixels.",
+      "completedAt": "2026-11-24T21:59:27+11:00"
+    },
+    {
+      "id": "sync-durable-room-state",
+      "title": "Persist and synchronise shared match state",
+      "group": "Multiplayer",
+      "notes": "Implemented persistent SQLite room, match and receipt state for the single-host pilot. Both Chromium profiles completed the same match and saw the same result, with polling observation latency below three seconds at the 95th percentile on the local test.",
+      "completedAt": "2026-11-24T21:59:27+11:00"
     }
   ]
 }

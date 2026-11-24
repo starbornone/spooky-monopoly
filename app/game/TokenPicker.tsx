@@ -217,6 +217,7 @@ export const TokenPicker = ({ onChoose, checkingSave, savedGame, invitation, cha
           <input type="checkbox" checked={seeded} onChange={event => setSeeded(event.target.checked)} />
           Create a shareable challenge
         </label>
+        <a className="token-picker__pilot" href="/multiplayer">Play with a friend</a>
 
         <div className="token-picker__grid" key={refreshKey}>
           {PLAYER_TOKENS.map((token, index) => {

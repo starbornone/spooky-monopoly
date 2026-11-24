@@ -34,18 +34,6 @@
       "notes": "Phase 3 (Later). Multiplayer stage 1 (supervised two-player pilot). Record the contract in docs/multiplayer-rules.md before changing the engine. Prototype equal human seats, random first seat, and 10 rounds with one turn per player per round. Define legal Buy and Pass actions for unowned properties. Test posted rent transferred to the owner on landing, capped by the payer’s cash, with both players remaining through the last round. Score cash plus owned property purchase value and allow ties. Include worked examples for unaffordable rent, a purchase, and a tie. Playtest first-seat advantage before tuning rent and pacing. The proposed pilot contract and test scenarios are in docs/multiplayer-rules.md. The pilot rules now have executable tests. A paired simulation over 1,000 roll sequences gave the first seat 1,114 wins out of 2,000 matches (55.7%). Human playtesting and any balance tuning are still pending."
     },
     {
-      "id": "add-private-invite-rooms",
-      "title": "Let two players join a private match by invite",
-      "group": "Multiplayer",
-      "notes": "Phase 3 (Later). Multiplayer stage 1 (supervised two-player pilot). Prototype host and guest views with fixture data in GameSidebar.tsx and GameBoard.css at phone widths. Add a Play with a friend entry, shareable invite link, editable default seat names, and Ready controls. Give occupied seats credentials separate from the invite. Verify a client without a seat cannot read or act in the room and a member of one room cannot access another room."
-    },
-    {
-      "id": "sync-durable-room-state",
-      "title": "Persist and synchronise shared match state",
-      "group": "Multiplayer",
-      "notes": "Phase 3 (Later). Multiplayer stage 1 (supervised two-player pilot). Build on add-authoritative-turn-engine and add-private-invite-rooms. Persist rooms, members, accepted action IDs, revisions, and the latest snapshot separately from solo statistics. Start with short foreground polling and an immediate refresh on action, tab return, or reconnect. Keep the last confirmed board visible while a write is pending. Verify both clients finish a match with equal state and waiting clients reflect accepted actions within three seconds at the 95th percentile on a stable test connection. Consider push updates if polling misses the target."
-    },
-    {
       "id": "add-glanceable-shared-board",
       "title": "Make shared turns easy to follow on small screens",
       "group": "Multiplayer",

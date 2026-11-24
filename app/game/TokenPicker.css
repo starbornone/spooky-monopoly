@@ -107,6 +107,14 @@
   min-height: 2.75rem;
 }
 
+.token-picker__pilot {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  color: var(--color-floral-white);
+  text-decoration: underline;
+}
+
 .token-picker__saved-actions {
   display: flex;
   flex-wrap: wrap;

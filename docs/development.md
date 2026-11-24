@@ -11,7 +11,7 @@ Start with [Getting started](getting-started.md). Use the scripts in [`package.j
 | `pnpm start` | Serve the existing production build. Run `pnpm build` first. |
 | `pnpm test:routes` | Run production route checks after `pnpm build`. The multiplayer check uses temporary SQLite storage and requires Node.js 22.13 or later. |
 | `pnpm test` | Run statistics-state, solo rules, token-unlock, and multiplayer pilot checks. |
-| `pnpm test:browser` | Exercise built solo gameplay at three viewport sizes. Run `pnpm exec playwright-core install chromium` once and `pnpm build` before running these checks. |
+| `pnpm test:browser` | Exercise built solo gameplay at three viewport sizes and join the private pilot from two browser profiles. Run `pnpm exec playwright-core install chromium` once and `pnpm build` before running these checks. |
 
 Run `pnpm typecheck` and `pnpm build` for code changes and exercise the affected path manually. Run `pnpm test:routes` after route or configuration changes. For docs-only changes, check that local links resolve and validate any changed roadmap JSON against the [format contract](roadmap-format.md).
 

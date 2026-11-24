@@ -45,7 +45,7 @@ With these policies, the first seat won 1,114 of 2,000 matches (55.7%), the seco
 
 The [pilot engine](../app/server/multiplayer/pilotMatch.ts) accepts a revision, action ID, and intent. The room handler must resolve the room and seat from a verified membership before it calls the engine. The server rolls the die. Values such as roll, price, and ownership are derived inside the game logic.
 
-The SQLite store compares the expected revision and saves the new state and receipt together in one transaction. Receipts are keyed by room, seat, and action ID. Identical retries return the original receipt. The HTTP tests complete a match from two seats and force a receipt insertion failure to check that the match rolls back.
+The SQLite store compares the expected revision and saves the new state and receipt together in one transaction. Receipts are keyed by room, seat, and action ID. Identical retries return the original receipt. Browsers only apply poll snapshots whose revision is at least as recent as their current view. The HTTP tests complete a match from two seats and force a receipt insertion failure to check that the match rolls back.
 
 ## Run the private pilot
 
@@ -56,4 +56,8 @@ Use Node.js 22.13 or later and a single host with persistent local storage. Set 
 | `SPOOKY_PILOT_DB_PATH` | An absolute path to a SQLite file in a private directory writable by the server. Keep the file and its sidecar files outside the repository. |
 | `SPOOKY_PILOT_ORIGIN` | `http://localhost:3000` for local testing. Use the exact HTTPS origin for remote access, without a trailing slash. |
 
-The production API supports room creation, one-use invitations, ready states, and authenticated turns. The SQLite database uses one host and is separate from solo statistics. Keep the test instance restricted to your testers.
+Start the app and choose **Play with a friend**. Create a room, then copy its invite link before leaving the page. In a second browser profile, open the link and join as guest. Each player can enter a display name and select **Ready**. Both seats then see rolls, cash, positions, and property choices. Reopen the room in the same browser profile to use the existing seat. Clearing site cookies or closing a private browser session can remove access to that seat.
+
+The pilot runs on one host with a local database file. Keep the instance restricted to your testers. The pilot is disabled when its settings are absent and solo play stays available.
+
+The room URL carries the room ID. The invite is in the fragment until the guest joins, and the server accepts it only once. The browser sends its seat credential as a room-scoped HTTP-only cookie. The database stores credential hashes. The page polls every 1.5 seconds and refreshes when it becomes visible again. A local Chromium test refreshes a guest seat after a roll, finishes the match across two profiles, and checks that the 95th percentile time for observing a turn is below three seconds. Abandonment and the visual shared board are still open.

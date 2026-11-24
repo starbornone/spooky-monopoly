@@ -23,6 +23,7 @@ flowchart TD
 | [app/game/GlobalStats.tsx](../app/game/GlobalStats.tsx) and [app/game/types.ts](../app/game/types.ts) | Displays aggregated results and defines shared statistics types. |
 | [app/api/](../app/api/) | `POST /api/submit` inserts a game result with a server-generated timestamp. `GET /api/stats` reads results and aggregates them for the panel. Both use the same Supabase configuration helper. |
 | [app/server/multiplayer/](../app/server/multiplayer/) | Two-seat rules, seat authentication, and atomic SQLite commits for turns and their receipts. See the [pilot setup](multiplayer-rules.md#run-the-private-pilot). |
+| [app/multiplayer/](../app/multiplayer/) and [app/api/multiplayer/](../app/api/multiplayer/) | Private lobby, ready controls, and turn polling. The pilot is opt-in and its database is separate from solo statistics. |
 | [next.config.ts](../next.config.ts) | Rewrites `/2025/spooky` to the root and preserves the old stats and submit URLs under `/2025/spooky/api/`. |
 
 During play, the board reads the static board and token data, then updates browser state after each roll and property choice. At the end, the results screen records earned unlocks in local storage. It separately submits a result to the server. The statistics panel reads combined results from `wwo_2025_spooky_game_stats` and can show totals and breakdowns by token group.
