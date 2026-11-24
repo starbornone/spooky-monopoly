@@ -1,0 +1,54 @@
+{
+  "schema": "name -roadmap/v1",
+  "file": "completed",
+  "updatedAt": "2026-11-24T20:43:13+11:00",
+  "project": {
+    "key": "spooky-monopoly",
+    "title": "Spooky Monopoly",
+    "status": "active"
+  },
+  "items": [
+    {
+      "id": "ship-single-player-property-game",
+      "title": "Ship the single-player property game",
+      "group": "Gameplay",
+      "notes": "The browser game covers token selection, property decisions, end-of-game results, and restart.",
+      "completedAt": "2026-11-24T20:43:13+11:00"
+    },
+    {
+      "id": "migrate-to-next-app-router",
+      "title": "Run the game on the Next.js App Router with TypeScript",
+      "group": "Development",
+      "notes": "The application includes pnpm commands for development, type checking, production build, and start.",
+      "completedAt": "2026-11-24T20:43:13+11:00"
+    },
+    {
+      "id": "preserve-weird-web-october-urls",
+      "title": "Preserve the original Weird Web October URLs",
+      "group": "Routing",
+      "notes": "The root page and statistics handlers have legacy rewrites under /2025/spooky.",
+      "completedAt": "2026-11-24T20:43:13+11:00"
+    },
+    {
+      "id": "persist-local-token-unlocks",
+      "title": "Persist token unlocks in the browser",
+      "group": "Gameplay",
+      "notes": "A finished game can unlock new tokens for future runs in the same browser origin without Supabase.",
+      "completedAt": "2026-11-24T20:43:13+11:00"
+    },
+    {
+      "id": "add-optional-shared-statistics",
+      "title": "Connect shared statistics to Supabase",
+      "group": "Global statistics",
+      "notes": "The app can submit and aggregate results through the existing wwo_2025_spooky_game_stats table when configured. A live environment is a separate verification item.",
+      "completedAt": "2026-11-24T20:43:13+11:00"
+    },
+    {
+      "id": "document-repository-workflow",
+      "title": "Document the project and contributor workflow",
+      "group": "Documentation",
+      "notes": "The README links to the guides, agent instructions, and structured roadmap. The first inventory uses its creation date for earlier work without a recorded completion timestamp.",
+      "completedAt": "2026-11-24T20:43:13+11:00"
+    }
+  ]
+}

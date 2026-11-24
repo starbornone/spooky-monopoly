@@ -1,0 +1,11 @@
+{
+  "schema": "name -roadmap/v1",
+  "file": "cancelled",
+  "updatedAt": "2026-11-24T20:43:13+11:00",
+  "project": {
+    "key": "spooky-monopoly",
+    "title": "Spooky Monopoly",
+    "status": "active"
+  },
+  "items": []
+}
