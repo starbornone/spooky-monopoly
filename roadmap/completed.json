@@ -1,7 +1,7 @@
 {
   "schema": "name -roadmap/v1",
   "file": "completed",
-  "updatedAt": "2026-11-25T00:12:51+11:00",
+  "updatedAt": "2026-11-25T00:22:29+11:00",
   "project": {
     "key": "spooky-monopoly",
     "title": "Spooky Monopoly",
@@ -203,6 +203,13 @@
       "group": "Solo gameplay",
       "notes": "Properties and cash and the turn log start open, can still be collapsed, and use bounded scrolling on compact screens.",
       "completedAt": "2026-11-25T00:12:51+11:00"
+    },
+    {
+      "id": "refresh-site-favicon-and-title",
+      "title": "Add an illustrated favicon and update the browser tab title",
+      "group": "Presentation",
+      "notes": "Added a copper die with a jack-o'-lantern face in 16, 32 and 48 pixel sizes. The home page and legacy game URL use the Spooky Monopoly title.",
+      "completedAt": "2026-11-25T00:22:29+11:00"
     }
   ]
 }

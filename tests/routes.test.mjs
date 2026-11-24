@@ -43,7 +43,11 @@ test("the production server preserves the game page and statistics URLs", async 
       const page = await read(path);
       assert.equal(page.status, 200, path);
       assert.match(page.body, /Choose Your Token/, path);
+      assert.match(page.body, /<title>Spooky Monopoly<\/title>/, path);
+      assert.match(page.body, /<link rel="icon" href="\/favicon\.ico(?:\?[^"\s]*)?"/, path);
     }
+
+    assert.equal((await read("/favicon.ico")).status, 200);
 
     for (const prefix of ["", "/2025/spooky"]) {
       for (const [path, method] of [["/api/stats", "GET"], ["/api/submit", "POST"]]) {
