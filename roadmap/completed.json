@@ -1,7 +1,7 @@
 {
   "schema": "name -roadmap/v1",
   "file": "completed",
-  "updatedAt": "2026-11-25T00:29:02+11:00",
+  "updatedAt": "2026-11-25T00:37:19+11:00",
   "project": {
     "key": "spooky-monopoly",
     "title": "Spooky Monopoly",
@@ -217,6 +217,12 @@
       "group": "Development",
       "notes": "On Windows with Node.js 24.20.0 and pnpm 12.21.0, a fresh checkout and an empty package store passed a frozen-lockfile install, typecheck, production build, 12 rule and state tests, and two production route tests. The production server served both game URLs and the favicon, and both statistics URLs returned the expected unconfigured response. The lockfile stayed unchanged.",
       "completedAt": "2026-11-25T00:29:02+11:00"
+    },
+    {
+      "id": "use-spooky-monopoly-in-welcome-heading",
+      "title": "Use Spooky Monopoly in the welcome heading",
+      "group": "Presentation",
+      "completedAt": "2026-11-25T00:37:19+11:00"
     }
   ]
 }

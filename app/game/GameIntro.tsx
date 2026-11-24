@@ -8,7 +8,7 @@ export const GameIntro = () => {
       <h1 className="game-intro__title">
         Welcome to
         <br />
-        Haunted Halloween
+        Spooky
         <br />
         <span className="game-intro__monopoly">
           Monopoly <Artwork name="pumpkin" /><Artwork name="coin-purse" />
