@@ -45,4 +45,15 @@ With these policies, the first seat won 1,114 of 2,000 matches (55.7%), the seco
 
 The [pilot engine](../app/server/multiplayer/pilotMatch.ts) accepts a revision, action ID, and intent. The room handler must resolve the room and seat from a verified membership before it calls the engine. The server rolls the die. Values such as roll, price, and ownership are derived inside the game logic.
 
-The durable store must compare the expected revision and save the new state and receipt together in one transaction. Receipts are keyed by room, seat, and action ID. Identical retries return the original receipt. Clients should only apply snapshots whose revision is at least as recent as their current view. The tests use an in-memory implementation of this contract. Room authentication, database persistence, and the browser match are still open.
+The SQLite store compares the expected revision and saves the new state and receipt together in one transaction. Receipts are keyed by room, seat, and action ID. Identical retries return the original receipt. The HTTP tests complete a match from two seats and force a receipt insertion failure to check that the match rolls back.
+
+## Run the private pilot
+
+Use Node.js 22.13 or later and a single host with persistent local storage. Set these variables in `.env.local` or the server's runtime environment.
+
+| Variable | Example |
+| --- | --- |
+| `SPOOKY_PILOT_DB_PATH` | An absolute path to a SQLite file in a private directory writable by the server. Keep the file and its sidecar files outside the repository. |
+| `SPOOKY_PILOT_ORIGIN` | `http://localhost:3000` for local testing. Use the exact HTTPS origin for remote access, without a trailing slash. |
+
+The production API supports room creation, one-use invitations, ready states, and authenticated turns. The SQLite database uses one host and is separate from solo statistics. Keep the test instance restricted to your testers.

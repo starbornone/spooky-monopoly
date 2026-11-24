@@ -1,7 +1,7 @@
 {
   "schema": "name -roadmap/v1",
   "file": "completed",
-  "updatedAt": "2026-11-24T21:33:04+11:00",
+  "updatedAt": "2026-11-24T21:59:27+11:00",
   "project": {
     "key": "spooky-monopoly",
     "title": "Spooky Monopoly",
@@ -133,6 +133,13 @@
       "group": "Replay",
       "notes": "Recorded rolls and choices in local saves and added the end-game Ghost Ledger. It checks that the original replay matches the reported result, shows cash and owned property names side by side, and stops at the first invalid later action. Chromium verifies both a replay that reaches the final turn and one that stops on turn 17. Comparisons leave the reported result unchanged.",
       "completedAt": "2026-11-24T21:33:04+11:00"
+    },
+    {
+      "id": "add-authoritative-turn-engine",
+      "title": "Resolve shared turns on the server",
+      "group": "Multiplayer",
+      "notes": "Implemented and verified server-side turn resolution with room-scoped seat authentication, revision checks and idempotent receipts. SQLite persists state and receipts together. The production HTTP test races identical actions and forces a receipt insertion error to verify rollback.",
+      "completedAt": "2026-11-24T21:59:27+11:00"
     }
   ]
 }
