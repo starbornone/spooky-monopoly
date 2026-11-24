@@ -19,6 +19,7 @@ interface GameSidebarProps {
   ownedProperties: number[];
   rollDice: () => void;
   showPopup?: boolean;
+  statsConfirmed?: boolean;
   turnCount: number;
 }
 
@@ -33,6 +34,7 @@ export const GameSidebar = ({
   ownedProperties,
   rollDice,
   showPopup = false,
+  statsConfirmed = false,
   turnCount,
 }: GameSidebarProps) => {
   const diceButtonRef = useRef<HTMLButtonElement>(null);
@@ -88,7 +90,7 @@ export const GameSidebar = ({
         </div>
       )}
 
-      {isEnded && <GlobalStats />}
+      {isEnded && <GlobalStats statsConfirmed={statsConfirmed} />}
     </div>
   );
 };

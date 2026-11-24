@@ -1,7 +1,7 @@
 {
   "schema": "name -roadmap/v1",
   "file": "roadmap",
-  "updatedAt": "2026-11-25T00:35:10+11:00",
+  "updatedAt": "2026-11-25T00:41:10+11:00",
   "project": {
     "key": "spooky-monopoly",
     "title": "Spooky Monopoly",
@@ -19,7 +19,7 @@
       "id": "make-shared-results-reliable",
       "title": "Validate submissions and show confirmed aggregates",
       "group": "Global statistics",
-      "notes": "Phase 2 (Next). Validate result fields at runtime in the submit handler. Introduce a backward-compatible submission ID and a database uniqueness rule once the live schema is confirmed. Check HTTP responses in EndGame.tsx and refresh GlobalStats.tsx after a confirmed submission. Verify aggregates across response pages and confirm that a failed or retried submission leaves local play available."
+      "notes": "Phase 2 (Next). The results screen checks the HTTP response and refreshes shared statistics after the server confirms the submission. Chromium covers delayed confirmation, a failed submission, disabled statistics, and local restart. Validate result fields at runtime in the submit handler after checking the hosted table contract. Introduce a backward-compatible submission ID and a database uniqueness rule once the live schema is confirmed. Verify aggregates across response pages and confirm that a retried submission leaves local play available."
     },
     {
       "id": "define-two-seat-match-rules",

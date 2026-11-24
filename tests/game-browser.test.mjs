@@ -105,7 +105,7 @@ test("resume an unresolved landing and a committed purchase without charging twi
   }
 });
 
-async function serveGame(page, stats) {
+async function serveGame(page, { submitResult, readStats } = {}) {
   await page.route("**/*", async route => {
     const url = new URL(route.request().url());
     if (url.origin !== origin) return route.abort();
@@ -120,10 +120,11 @@ async function serveGame(page, stats) {
       return route.fulfill({ path: `public${url.pathname}`, contentType: "image/webp" });
     }
     if (url.pathname === "/api/submit") {
+      if (submitResult) return submitResult(route);
       return route.fulfill({ status: 503, json: { success: false } });
     }
     if (url.pathname === "/api/stats") {
-      if (stats) return route.fulfill({ json: { success: true, data: stats } });
+      if (readStats) return readStats(route);
       return route.fulfill({ status: 503, json: { success: false, code: "STATS_UNCONFIGURED" } });
     }
     return route.fulfill({ status: 404 });
@@ -137,19 +138,39 @@ test("complete and restart a fixed-roll solo game on narrow and landscape screen
   await Promise.all(viewports.map(viewport =>
     t.test(`${viewport.width} × ${viewport.height}`, async () => {
       const page = await browser.newPage({ viewport, reducedMotion: "reduce" });
+      const allowConfirmation = Promise.withResolvers();
       try {
         const errors = [];
         page.on("pageerror", error => errors.push(error.message));
         const buyProperty = viewport.width === 390;
+        const statsConfigured = viewport.width !== 320;
+        let submissions = 0;
+        let statsReads = 0;
+        let resultSaved = false;
         const emptyGroup = { totalGames: 0, avgTotalValue: 0, avgPropertiesOwned: 0, achievementCounts: {}, titleCounts: {} };
         const humanGroup = {
           totalGames: 1, avgTotalValue: 1309, avgPropertiesOwned: 1,
           achievementCounts: { "🏴‍☠️ Cultural Colonizer Supreme": 1 },
           titleCounts: { "👻 Amateur Culture Vulture 👻": 1, "A plain title": 1 }
         };
-        await serveGame(page, buyProperty ? {
+        const savedStats = {
           ...humanGroup, groupStats: { humans: humanGroup, elves: emptyGroup, vampires: emptyGroup }
-        } : undefined);
+        };
+        await serveGame(page, {
+          async submitResult(route) {
+            submissions++;
+            if (!buyProperty) {
+              return route.fulfill({ status: statsConfigured ? 500 : 503, json: { success: false } });
+            }
+            await allowConfirmation.promise;
+            resultSaved = true;
+            return route.fulfill({ json: { success: true } });
+          },
+          readStats: statsConfigured ? route => {
+            statsReads++;
+            return route.fulfill({ json: { success: true, data: resultSaved ? savedStats : emptyGroup } });
+          } : undefined,
+        });
         await page.addInitScript(() => {
           Math.random = () => 0;
           Object.defineProperty(navigator, "clipboard", {
@@ -234,15 +255,19 @@ test("complete and restart a fixed-roll solo game on narrow and landscape screen
         }
 
         await page.getByRole("button", { name: /End Game/ }).click();
+        const stats = page.locator(".global-stats");
+        if (statsConfigured) {
+          await stats.getByText("No games have been recorded yet.").waitFor();
+        } else {
+          await stats.getByText("Shared statistics are not configured for this game.").waitFor();
+        }
         if (buyProperty) {
-          const stats = page.locator(".global-stats");
+          allowConfirmation.resolve();
           await stats.getByRole("button", { name: "Humans" }).click();
           const legacyAward = stats.getByText("Cultural Colonizer Supreme", { exact: true });
           await legacyAward.locator('img[src="/artwork/pirate-flag.webp"]').evaluate(image => image.decode());
           assert.equal(await stats.getByText("A plain title", { exact: true }).isVisible(), true);
           assert.equal(await stats.getByText("Amateur Culture Vulture", { exact: true }).isVisible(), true);
-        } else {
-          await page.getByText("Shared statistics are not configured for this game.").waitFor();
         }
         if (!buyProperty) await page.getByText(/Elf tokens unlocked/).waitFor();
         const finalBalance = await page.locator(".end-game__stat-value").first().innerText();
@@ -284,6 +309,8 @@ test("complete and restart a fixed-roll solo game on narrow and landscape screen
         }
         await page.getByRole("button", { name: /Restart the Haunting Cycle/ }).click();
         await page.getByRole("button", { name: "Choose Human token 1" }).waitFor();
+        assert.equal(submissions, 1);
+        assert.equal(statsReads, buyProperty ? 2 : statsConfigured ? 1 : 0);
         if (!buyProperty) {
           await page.getByRole("button", { name: "Choose Elf token 1" }).waitFor();
           assert.equal(await page.locator("#token-rules-elves").isVisible(), true);
@@ -293,6 +320,7 @@ test("complete and restart a fixed-roll solo game on narrow and landscape screen
         }
         assert.deepEqual(errors, []);
       } finally {
+        allowConfirmation.resolve();
         await page.close();
       }
     })

@@ -42,6 +42,8 @@ For shared results, make a copy of [`.env.example`](../.env.example) named `.env
 
 Use an existing project with the `wwo_2025_spooky_game_stats` table and policies permitting the configured public key to select and insert game results. The repository does not provision that table. Restart the dev server after editing `.env.local`. Check `/api/stats` for a JSON response with `success: true`, then finish a round in the intended test environment to check submission. An empty table can return zero games.
 
+The statistics panel refreshes after the server confirms a submission. If the submission fails, you can still view and share your local result and start another game.
+
 ## First-run problems
 
 | Symptom | Check |

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 import { ResultShare } from "./ResultShare";
 import { Artwork, IllustratedLabel } from "./Artwork";
@@ -22,9 +22,24 @@ interface EndGameProps {
   ownedProperties: BoardSpace[];
   playerToken: PlayerToken | null;
   onRestart: () => void;
+  onStatsConfirmed: () => void;
   earnedUnlocks: (keyof UnlockStatus)[];
   challengeLink?: string;
   recordedTurns?: RecordedTurn[];
+}
+
+async function submitGameStats(payload: string) {
+  try {
+    const response = await fetch("/api/submit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: payload,
+    });
+    return response.ok && (await response.json()).success === true;
+  } catch (error) {
+    console.error("Error submitting game stats:", error);
+    return false;
+  }
 }
 
 export const EndGame = ({
@@ -32,6 +47,7 @@ export const EndGame = ({
   ownedProperties,
   playerToken,
   onRestart,
+  onStatsConfirmed,
   earnedUnlocks,
   challengeLink,
   recordedTurns,
@@ -48,58 +64,26 @@ export const EndGame = ({
 
   const achievements = getSpecialAchievements(ownedProperties, money);
   const playerTitle = getPlayerTitle(ownedProperties);
+  const achievementTitles = achievements.map(achievement => achievement.title);
+  const payload = JSON.stringify({
+    achievements: achievementTitles,
+    money,
+    player_group: playerToken?.group ?? "humans",
+    player_title: playerTitle,
+    properties_owned: ownedProperties.length,
+    total_revenue: totalRevenue,
+    total_property_value: totalPropertyValue,
+  });
+  const submission = useRef<Promise<boolean> | null>(null);
 
   useEffect(() => {
-    try {
-      const payloadKey = JSON.stringify({
-        money,
-        properties: ownedProperties.length,
-        revenue: totalRevenue,
-        title: playerTitle,
-        achievements: achievements.map(a => a.title).sort(),
-      });
-
-      const lastKey = sessionStorage.getItem("lastEndGameSubmission");
-      const lastTsRaw = sessionStorage.getItem("lastEndGameSubmissionTs");
-      const lastTs = lastTsRaw ? parseInt(lastTsRaw, 10) : 0;
-      const now = Date.now();
-
-      if (lastKey === payloadKey && now - lastTs < 2000) {
-        return;
-      }
-
-      sessionStorage.setItem("lastEndGameSubmission", payloadKey);
-      sessionStorage.setItem("lastEndGameSubmissionTs", String(now));
-
-      void fetch("/api/submit", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          achievements: achievements.map(a => a.title),
-          money,
-          player_group: playerToken?.group || "humans",
-          player_title: playerTitle,
-          properties_owned: ownedProperties.length,
-          total_revenue: totalRevenue,
-          total_property_value: totalPropertyValue,
-        }),
-      }).catch(error => {
-        console.error("Error submitting game stats:", error);
-      });
-    } catch (e) {
-      console.warn("Stats submission skipped due to storage error", e);
-    }
-  }, [
-    achievements,
-    money,
-    ownedProperties.length,
-    playerTitle,
-    playerToken?.group,
-    totalRevenue,
-    totalPropertyValue,
-  ]);
+    const pending = (submission.current ??= submitGameStats(payload));
+    let active = true;
+    void pending.then(confirmed => {
+      if (active && confirmed) onStatsConfirmed();
+    });
+    return () => { active = false; };
+  }, [payload, onStatsConfirmed]);
 
   return (
     <div className="end-game">
@@ -191,7 +175,7 @@ export const EndGame = ({
         money={money}
         properties={ownedProperties.length}
         propertyValue={totalPropertyValue}
-        achievements={achievements.map(achievement => achievement.title)}
+        achievements={achievementTitles}
         challengeLink={challengeLink}
       />
       <button className="end-game__button" onClick={onRestart}>

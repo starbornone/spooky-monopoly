@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useCallback, useState, useRef, useEffect } from "react";
 
 import { boardSpaces, MAX_TURNS, PLAYER_TOKENS, type PlayerToken } from "./data";
 import { EndGame } from "./EndGame";
@@ -21,6 +21,7 @@ const ownershipArtwork = { vampires: "skull", elves: "seedling", humans: "coin-p
 
 export default function GameBoard() {
   const [gameEnded, setGameEnded] = useState(false);
+  const [statsConfirmed, setStatsConfirmed] = useState(false);
   const [isRolling, setIsRolling] = useState(false);
   const [animatePlayer, setAnimatePlayer] = useState(false);
   const [money, setMoney] = useState(0);
@@ -41,6 +42,7 @@ export default function GameBoard() {
     totalPropertiesBought: 0,
     totalAffordablePropertiesLandedOn: 0,
   });
+  const confirmStats = useCallback(() => setStatsConfirmed(true), []);
 
   useEffect(() => {
     setSavedRun(readLocalRun());
@@ -160,6 +162,7 @@ export default function GameBoard() {
   const handleRestart = () => {
     clearLocalRun();
     setGameEnded(false);
+    setStatsConfirmed(false);
     setEarnedUnlocks([]);
     setChallengeSeed(undefined);
     setMoney(1500);
@@ -188,6 +191,7 @@ export default function GameBoard() {
           ownedProperties={ownedProperties}
           rollDice={rollDice}
           showPopup={showPopup}
+          statsConfirmed={statsConfirmed}
           turnCount={turnCount}
         />
         <div className="game-board__container">
@@ -198,6 +202,7 @@ export default function GameBoard() {
             )}
             playerToken={playerToken}
             onRestart={handleRestart}
+            onStatsConfirmed={confirmStats}
             earnedUnlocks={earnedUnlocks}
             recordedTurns={recordedTurns}
             challengeLink={playerToken && challengeSeed !== undefined

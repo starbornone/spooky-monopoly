@@ -7,7 +7,7 @@ import { loadGlobalStats, type GlobalStatsState } from "./utils/loadGlobalStats"
 
 import "./GlobalStats.css";
 
-export const GlobalStats = () => {
+export const GlobalStats = ({ statsConfirmed }: { statsConfirmed: boolean }) => {
   const [state, setState] = useState<GlobalStatsState>({ status: "loading" });
   const [attempt, setAttempt] = useState(0);
   const [activeTab, setActiveTab] = useState<
@@ -20,7 +20,7 @@ export const GlobalStats = () => {
       if (!controller.signal.aborted) setState(result);
     });
     return () => controller.abort();
-  }, [attempt]);
+  }, [attempt, statsConfirmed]);
 
   if (state.status !== "ready") {
     const messages = {
