@@ -1,7 +1,7 @@
 {
   "schema": "name -roadmap/v1",
   "file": "roadmap",
-  "updatedAt": "2026-11-24T22:21:22+11:00",
+  "updatedAt": "2026-11-25T00:35:10+11:00",
   "project": {
     "key": "spooky-monopoly",
     "title": "Spooky Monopoly",
@@ -10,16 +10,10 @@
   },
   "items": [
     {
-      "id": "verify-clean-install",
-      "title": "Verify a clean dependency install and production run",
-      "group": "Development",
-      "notes": "Phase 1 (Now). In a fresh checkout with Node.js 22 or later and pnpm 12, run install, typecheck, build and start. Record the versions and address any lockfile or setup issues found. Run this first so the other checks start from a reproducible production build. A production build and local production HTTP checks passed with installed dependencies. Clean install still needs registry access for pnpm package metadata."
-    },
-    {
       "id": "verify-supabase-results-flow",
       "title": "Verify the results flow against a configured Supabase project",
       "group": "Global statistics",
-      "notes": "Phase 2 (Next). Use a test project with the existing table contract. Verify an empty aggregate, one completed-game insert, and the resulting totals and token-group counts under the public-key policies. Verify live table constraints and policies before changing shared writes or aggregation. Keep local play independent of this check."
+      "notes": "Phase 2 (Next). A disposable local Supabase stack using a table fixture based on the app contract passed the empty aggregate, one completed-game insert, and overall and Human-group totals with a public key. The legacy routes also worked. The fixture denied public updates and deletes and rejected a negative property count. There is no hosted project yet. Repeat the checks against a hosted test project and confirm its table constraints and policies before changing shared writes or aggregation. Keep local play independent of this check."
     },
     {
       "id": "make-shared-results-reliable",
