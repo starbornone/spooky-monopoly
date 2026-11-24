@@ -44,6 +44,16 @@ Use an existing project with the `wwo_2025_spooky_game_stats` table and policies
 
 The statistics panel refreshes after the server confirms a submission. If the submission fails, you can still view and share your local result and start another game.
 
+### Verify a test project
+
+Point the app at a dedicated test Supabase project with an empty statistics table and use its publishable or legacy anon key. Check the table constraints and the public role's grants and row-level security policies in the Supabase dashboard. Then run this command against the running app.
+
+```sh
+node scripts/check-shared-stats.mjs http://localhost:3000
+```
+
+The command checks that both statistics URLs report zero games, submits one fixture result, and checks the overall and Human totals. The fixture row stays in the test table. Use an empty test table for each run.
+
 ## First-run problems
 
 | Symptom | Check |

@@ -1,7 +1,7 @@
 {
   "schema": "name -roadmap/v1",
   "file": "roadmap",
-  "updatedAt": "2026-11-25T00:41:10+11:00",
+  "updatedAt": "2026-11-25T00:51:03+11:00",
   "project": {
     "key": "spooky-monopoly",
     "title": "Spooky Monopoly",
@@ -13,7 +13,7 @@
       "id": "verify-supabase-results-flow",
       "title": "Verify the results flow against a configured Supabase project",
       "group": "Global statistics",
-      "notes": "Phase 2 (Next). A disposable local Supabase stack using a table fixture based on the app contract passed the empty aggregate, one completed-game insert, and overall and Human-group totals with a public key. The legacy routes also worked. The fixture denied public updates and deletes and rejected a negative property count. There is no hosted project yet. Repeat the checks against a hosted test project and confirm its table constraints and policies before changing shared writes or aggregation. Keep local play independent of this check."
+      "notes": "Phase 2 (Next). A disposable local Supabase stack using a table fixture based on the app contract passed the empty aggregate, one completed-game insert, and overall and Human-group totals with a public key. The legacy routes also worked. The fixture denied public updates and deletes and rejected a negative property count. The check-shared-stats.mjs command repeats the route checks and stops before insertion when the table already reports games. It passed against the built app and local Supabase. There is no hosted project yet. Run the command against a hosted test project and confirm its table constraints and policies before changing shared writes or aggregation. Keep local play independent of this check."
     },
     {
       "id": "make-shared-results-reliable",
