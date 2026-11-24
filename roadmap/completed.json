@@ -1,7 +1,7 @@
 {
   "schema": "name -roadmap/v1",
   "file": "completed",
-  "updatedAt": "2026-11-24T21:59:27+11:00",
+  "updatedAt": "2026-11-24T22:08:48+11:00",
   "project": {
     "key": "spooky-monopoly",
     "title": "Spooky Monopoly",
@@ -154,6 +154,13 @@
       "group": "Multiplayer",
       "notes": "Implemented persistent SQLite room, match and receipt state for the single-host pilot. Both Chromium profiles completed the same match and saw the same result, with polling observation latency below three seconds at the 95th percentile on the local test.",
       "completedAt": "2026-11-24T21:59:27+11:00"
+    },
+    {
+      "id": "add-glanceable-shared-board",
+      "title": "Make shared turns easy to follow on small screens",
+      "group": "Multiplayer",
+      "notes": "Added the shared perimeter board with numbered position and ownership markers, overlapping tokens, and inspectable spaces. At 320 CSS pixels, Chromium verifies reachable 44-pixel controls, a keyboard roll and purchase, shared ownership labels, and closing space details without resolving the choice. Accepted turns update the acting seat immediately and restore focus to the next available action.",
+      "completedAt": "2026-11-24T22:08:48+11:00"
     }
   ]
 }

@@ -94,25 +94,57 @@ test("two browsers can join, resume a seat and finish the private pilot in sync"
     await host.getByRole("button", { name: "Ready" }).click();
     await guest.getByRole("button", { name: "Ready" }).click();
     await Promise.all([host.getByText(/Round 1 of 10/).waitFor(), guest.getByText(/Round 1 of 10/).waitFor()]);
+    for (const page of [host, guest]) {
+      const board = page.getByRole("region", { name: "Shared board" });
+      assert.equal(await board.getByRole("button").count(), 16);
+      const start = board.getByRole("button", { name: "GO (Harvest of Souls), Midnight is here, Graveyard is here" });
+      assert.deepEqual(await start.locator(".pilot-board__token").allTextContents(), ["P1", "P2"]);
+      assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true);
+    }
     assert.equal(await host.getByRole("button", { name: "Roll", exact: true }).count() +
       await guest.getByRole("button", { name: "Roll", exact: true }).count(), 1);
     const timings = [];
-    const action = /^(Roll|Pass)$/;
     for (let revision = 1; revision <= 40; revision++) {
       if (await host.getByText(/Scores:/).count()) break;
+      const action = revision === 2 ? /^Buy$/ : /^(Roll|Pass)$/;
       const active = await host.getByRole("button", { name: action }).count() ? host : guest;
       const observer = active === host ? guest : host;
       const started = performance.now();
-      await active.getByRole("button", { name: action }).click();
+      const control = active.getByRole("button", { name: action });
+      const bounds = await control.boundingBox();
+      assert.ok(bounds && bounds.height >= 44 && bounds.y >= 0 && bounds.y + bounds.height <= 700,
+        "Primary controls should be reachable in the 320-pixel viewport");
+      if (revision <= 2) await control.press("Enter");
+      else await control.click();
       await observer.locator(`main[data-revision="${revision}"]`).waitFor();
       timings.push(performance.now() - started);
       await active.locator(`main[data-revision="${revision}"]`).waitFor();
       if (revision === 1) {
+        await active.waitForFunction(() => document.activeElement?.textContent === "Buy");
+        const board = active.getByRole("region", { name: "Shared board" });
+        const square = board.locator(".pilot-board__tile--active");
+        await square.press("Enter");
+        const details = active.getByRole("region", { name: "Space details" });
+        await details.getByRole("heading").waitFor();
+        await active.waitForFunction(() => document.activeElement?.tagName === "H2");
+        await active.keyboard.press("Tab");
+        await active.keyboard.press("Enter");
+        assert.equal(await details.count(), 0);
+        assert.equal(await active.locator("main").getAttribute("data-revision"), "1");
+        await active.getByRole("button", { name: "Buy", exact: true }).waitFor();
         assert.equal(await host.getByText(/Last roll:/).textContent(), await guest.getByText(/Last roll:/).textContent());
         await guest.reload();
         await guest.getByText("Graveyard (you)").waitFor();
         await guest.locator('main[data-revision="1"]').waitFor();
         assert.equal(await guest.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true);
+      }
+      if (revision === 2) {
+        const owner = active === host ? "Midnight" : "Graveyard";
+        const label = active === host ? "P1 owns" : "P2 owns";
+        for (const page of [host, guest]) {
+          const owned = page.getByRole("region", { name: "Shared board" }).getByRole("button", { name: new RegExp(`owned by ${owner}`) });
+          assert.equal(await owned.locator(".pilot-board__owner").textContent(), label);
+        }
       }
     }
     const result = await host.getByText(/Scores:/).textContent();

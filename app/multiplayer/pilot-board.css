@@ -1,0 +1,102 @@
+.pilot-board {
+  position: relative;
+}
+
+.pilot-board__spaces {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-rows: repeat(5, minmax(3.25rem, 1fr));
+  gap: 0.125rem;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.pilot-board__space {
+  display: flex;
+  min-width: 0;
+}
+
+.pilot-board__space:nth-child(-n + 5) { grid-row: 5; }
+.pilot-board__space:nth-child(6),
+.pilot-board__space:nth-child(16) { grid-row: 4; }
+.pilot-board__space:nth-child(7),
+.pilot-board__space:nth-child(15) { grid-row: 3; }
+.pilot-board__space:nth-child(8),
+.pilot-board__space:nth-child(14) { grid-row: 2; }
+.pilot-board__space:nth-child(n + 9):nth-child(-n + 13) { grid-row: 1; }
+.pilot-board__space:nth-child(n + 5):nth-child(-n + 9) { grid-column: 1; }
+.pilot-board__space:nth-child(4),
+.pilot-board__space:nth-child(10) { grid-column: 2; }
+.pilot-board__space:nth-child(3),
+.pilot-board__space:nth-child(11) { grid-column: 3; }
+.pilot-board__space:nth-child(2),
+.pilot-board__space:nth-child(12) { grid-column: 4; }
+.pilot-board__space:nth-child(1),
+.pilot-board__space:nth-child(n + 13) { grid-column: 5; }
+
+.pilot .pilot-board__tile {
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  width: 100%;
+  padding: 0.125rem;
+  border-color: rgba(102, 78, 125, 1);
+  background: rgba(43, 33, 57, 1);
+  color: inherit;
+  font-size: clamp(0.625rem, 2.7vw, 0.875rem);
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.pilot .pilot-board__tile--active {
+  border-color: rgba(245, 204, 131, 1);
+}
+
+.pilot .pilot-board__tile[aria-pressed="true"] {
+  box-shadow: inset 0 0 0 0.125rem rgba(219, 193, 239, 1);
+}
+
+.pilot-board__owner {
+  font-weight: 600;
+}
+
+.pilot-board__tokens {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.125rem 0.25rem;
+  justify-content: center;
+}
+
+.pilot-board__token {
+  padding-inline: 0.125rem;
+  border: 0.0625rem solid currentColor;
+  border-radius: 0.125rem;
+}
+
+.pilot-board__centre {
+  position: absolute;
+  inset: 20%;
+  display: grid;
+  align-items: center;
+  margin: 0.25rem;
+  padding: 0.375rem;
+  overflow: auto;
+  text-align: center;
+}
+
+.pilot-board__centre h2 {
+  margin: 0 0 0.25rem;
+  color: inherit;
+  font-size: 0.875rem;
+}
+
+.pilot-board__centre p {
+  margin: 0 0 0.25rem;
+  font-size: 0.8125rem;
+  overflow-wrap: anywhere;
+}
+
+.pilot-board__centre button {
+  margin-inline: auto;
+}

@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { boardSpaces } from "../game/data";
 import type { PilotMatch, PilotSeat } from "../server/multiplayer/pilotMatch";
+import { PilotBoard } from "./PilotBoard";
 import "./pilot.css";
 
 interface RoomView {
@@ -19,6 +20,7 @@ interface RoomReply {
   invite?: string;
   seat?: PilotSeat;
   room?: RoomView;
+  match?: PilotMatch;
 }
 
 const endpoint = "/api/multiplayer";
@@ -41,6 +43,15 @@ export function PilotLobby() {
   const [name, setName] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const turnDock = useRef<HTMLElement>(null);
+  const returnFocus = useRef(false);
+
+  useEffect(() => {
+    if (busy || !returnFocus.current) return;
+    returnFocus.current = false;
+    const dock = turnDock.current;
+    (dock?.querySelector<HTMLElement>("button:enabled") ?? dock?.querySelector<HTMLElement>("[role='status']"))?.focus();
+  }, [busy]);
 
   useEffect(() => {
     const url = new URL(window.location.href);
@@ -52,9 +63,16 @@ export function PilotLobby() {
   const updateRoom = (reply: RoomReply) => {
     if (reply.seat !== undefined) setSeat(reply.seat);
     const next = reply.room;
-    if (next) setRoom(current =>
-      current?.match && (next.match?.revision ?? -1) < current.match.revision ? current : next
-    );
+    if (next) {
+      setRoom(current =>
+        current?.match && (next.match?.revision ?? -1) < current.match.revision ? current : next
+      );
+    } else if (reply.match) {
+      const match = reply.match;
+      setRoom(current => current && match.revision >= (current.match?.revision ?? -1)
+        ? { ...current, match }
+        : current);
+    }
   };
 
   useEffect(() => {
@@ -141,13 +159,14 @@ export function PilotLobby() {
 
   const match = room?.match;
   const activeSeat = match && match.phase.kind !== "finished"
-    ? (match.firstSeat + match.completedTurns) % 2
+    ? ((match.firstSeat + match.completedTurns) % 2) as PilotSeat
     : null;
   const ready = seat === null ? false : room?.players[seat]?.ready;
   const choiceId = match?.phase.kind === "choice" ? match.phase.spaceId : undefined;
   const choice = boardSpaces.find(space => space.id === choiceId);
   const turn = (action: "roll" | "buy" | "pass") => {
     if (!match) return;
+    returnFocus.current = true;
     void post(`${endpoint}/${roomId}`, {
       type: "turn",
       intent: { actionId: crypto.randomUUID(), expectedRevision: match.revision, action }
@@ -172,7 +191,7 @@ export function PilotLobby() {
           <ul className="pilot__seats" aria-label="Players">
             {room.players.map((player, index) => (
               <li className="pilot__seat" key={index}>
-                <strong>{player?.name ?? "Guest seat open"}{seat === index ? " (you)" : ""}</strong>
+                <strong>{match && `P${index + 1} · `}{player?.name ?? "Guest seat open"}{seat === index ? " (you)" : ""}</strong>
                 {match
                   ? <span>${match.players[index].cash} · {boardSpaces[match.players[index].position].name}</span>
                   : <span>{player?.ready ? "Ready" : "Waiting"}</span>}
@@ -191,6 +210,7 @@ export function PilotLobby() {
             </form>
           )}
           {!match && ready && <p role="status">Waiting for both seats to be ready.</p>}
+          {match && <PilotBoard match={match} players={room.players} activeSeat={activeSeat} />}
           {match?.phase.kind === "finished" && (
             <p role="status">
               {match.phase.winner === null ? "Tie" : `${room.players[match.phase.winner]?.name} won`}
@@ -198,13 +218,13 @@ export function PilotLobby() {
             </p>
           )}
           {match && activeSeat !== null && (
-            <section className="pilot__turn">
-              <p role="status">
+            <section className="pilot__turn" ref={turnDock} aria-label="Turn controls">
+              <p role="status" tabIndex={-1}>
                 Round {Math.floor(match.completedTurns / 2) + 1} of 10 · {activeSeat === seat
                   ? "Your turn" : `${room.players[activeSeat]?.name}'s turn`}
               </p>
               {match.lastRoll !== null && <p>Last roll: {match.lastRoll}</p>}
-              {choice && <p>{choice.name} · ${choice.price}</p>}
+              {choice && <p>{choice.name} · ${choice.price} · Rent: ${choice.rent}</p>}
               {seat === activeSeat && match.phase.kind === "roll" && (
                 <button disabled={busy} onClick={() => turn("roll")}>Roll</button>
               )}
