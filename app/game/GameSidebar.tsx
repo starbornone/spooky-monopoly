@@ -49,25 +49,31 @@ export const GameSidebar = ({
   }, [isEnded, showPopup, isRolling, canRoll]);
 
   return (
-    <div className="game-sidebar">
-      <GameIntro />
+    <div className={`game-sidebar${isEnded ? " game-sidebar--ended" : ""}`}>
+      <div className="game-sidebar__desktop-intro"><GameIntro /></div>
+      <details className="game-sidebar__mobile-intro">
+        <summary>About this game</summary>
+        <GameIntro />
+      </details>
 
       {!isEnded && (
-        <MoneyDisplay
-          money={money}
-          ownedProperties={ownedProperties.map(
-            id => boardSpaces.find(s => s.id === id)!
-          )}
-        />
+        <details className="game-sidebar__portfolio">
+          <summary>Properties and cash</summary>
+          <MoneyDisplay
+            money={money}
+            ownedProperties={ownedProperties.map(id => boardSpaces.find(s => s.id === id)!)}
+          />
+        </details>
       )}
 
       {!isEnded && (
         <div className="game-sidebar__center">
           <GameInfo turnCount={turnCount} currentSpace={currentSpace} />
+          <span className="game-sidebar__mobile-balance">Cash: ${money}</span>
 
           <button
             className={`game-sidebar__dice ${isRolling ? "game-sidebar__dice--rolling" : ""}`}
-            disabled={isRolling || !canRoll}
+            disabled={isRolling || !canRoll || showPopup}
             onClick={canEndGame ? (onEndGame ?? (() => {})) : rollDice}
             ref={diceButtonRef}
           >

@@ -49,7 +49,7 @@
 .game-sidebar__dice {
   background-color: var(--color-jasper);
   border: none;
-  color: var(--color-floral-white);
+  color: var(--color-rich-black);
   cursor: pointer;
   font-size: 1.2rem;
   font-weight: 600;
@@ -59,6 +59,7 @@
     background-color 180ms ease,
     box-shadow 220ms ease;
   width: 100%;
+  min-height: 2.75rem;
 }
 
 .game-sidebar__dice:hover {
@@ -73,6 +74,64 @@
 .game-sidebar__dice:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+.game-sidebar__mobile-intro,
+.game-sidebar__mobile-balance {
+  display: none;
+}
+
+.game-sidebar__portfolio > summary {
+  cursor: pointer;
+}
+
+@media (max-width: 52rem), (max-height: 34rem) {
+  .game-sidebar {
+    background-color: var(--color-rich-black);
+    border-right: 0;
+    gap: 0.25rem;
+    inset-block-start: 0;
+    max-width: none;
+    overflow: visible;
+    padding: 0.5rem;
+    position: sticky;
+    z-index: 2;
+  }
+
+  .game-sidebar--ended {
+    position: static;
+  }
+
+  .game-sidebar__desktop-intro {
+    display: none;
+  }
+
+  .game-sidebar__mobile-intro,
+  .game-sidebar__mobile-balance {
+    display: block;
+  }
+
+  .game-sidebar__mobile-intro,
+  .game-sidebar__portfolio {
+    order: 1;
+  }
+
+  .game-sidebar__center {
+    display: grid;
+    gap: 0.25rem 0.5rem;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+  }
+
+  .game-sidebar__center .game-info {
+    grid-row: span 2;
+    overflow-wrap: anywhere;
+  }
+
+  .game-sidebar__dice {
+    padding: 0.5rem;
+    font-size: 1rem;
+  }
 }
 
 /* dice emoji rolling animation - animate the emoji inside the button */
