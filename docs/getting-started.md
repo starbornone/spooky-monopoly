@@ -19,6 +19,12 @@ The game saves your progress in this browser after each completed action. If you
 
 At the end of a game, use **Copy result text** for chat or **Download result image** to save a PNG. The result includes your title, faction, cash, property count and value, and achievements. Both options work with shared statistics disabled. If the browser blocks clipboard access, the game displays text you can select and copy.
 
+## Play a seeded challenge
+
+Check **Create a shareable challenge** before choosing a token. At the end of the run, copy the challenge link. Anyone who opens it can choose **Play challenge** to start with the same token and rules, even if they have yet to unlock that faction. The link contains the seed and rules version. The same choices produce the same result. Different purchases can affect later vampire rolls because their targeting depends on which properties remain unowned.
+
+Opening a link does not replace a local save until you start the challenge. If you resume an interrupted challenge, it uses the same seed and picks up at the saved turn.
+
 ## Enable shared statistics
 
 For shared results, make a copy of [`.env.example`](../.env.example) named `.env.local` in the repository root and fill in both values.

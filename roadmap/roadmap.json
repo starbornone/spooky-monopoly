@@ -1,7 +1,7 @@
 {
   "schema": "name -roadmap/v1",
   "file": "roadmap",
-  "updatedAt": "2026-11-24T21:19:13+11:00",
+  "updatedAt": "2026-11-24T21:27:16+11:00",
   "project": {
     "key": "spooky-monopoly",
     "title": "Spooky Monopoly",
@@ -26,12 +26,6 @@
       "title": "Validate submissions and show confirmed aggregates",
       "group": "Global statistics",
       "notes": "Phase 2 (Next). Validate result fields at runtime in the submit handler. Introduce a backward-compatible submission ID and a database uniqueness rule once the live schema is confirmed. Check HTTP responses in EndGame.tsx and refresh GlobalStats.tsx after a confirmed submission. Verify aggregates across response pages and confirm that a failed or retried submission leaves local play available."
-    },
-    {
-      "id": "add-seeded-challenges",
-      "title": "Share repeatable challenges using a seeded run",
-      "group": "Replay",
-      "notes": "Phase 3 (Later). Extract deterministic turn rules from GameBoard.tsx and keep rules randomness separate from animation. A challenge link identifies the seed, faction, and rules or board version. Identical legal actions in two fresh browser profiles should produce the same terminal state. Explain unsupported rules versions."
     },
     {
       "id": "add-ghost-ledger",

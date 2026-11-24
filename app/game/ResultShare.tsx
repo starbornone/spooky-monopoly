@@ -11,6 +11,7 @@ interface ResultShareProps {
   properties: number;
   propertyValue: number;
   achievements: string[];
+  challengeLink?: string;
 }
 
 function formatPropertyCount(count: number): string {
@@ -83,8 +84,10 @@ async function createResultImage(result: ResultShareProps): Promise<Blob> {
 }
 
 export function ResultShare(result: ResultShareProps) {
+  const { challengeLink } = result;
   const [status, setStatus] = useState("");
   const [showText, setShowText] = useState(false);
+  const [manualText, setManualText] = useState("");
   const [downloading, setDownloading] = useState(false);
   const summary = [
     "Spooky Monopoly",
@@ -93,14 +96,15 @@ export function ResultShare(result: ResultShareProps) {
     ...result.achievements.map(achievement => `• ${achievement}`)
   ].join("\n");
 
-  const copy = async () => {
+  const copy = async (value: string, label: string) => {
     try {
-      await navigator.clipboard.writeText(summary);
+      await navigator.clipboard.writeText(value);
       setShowText(false);
-      setStatus("Result copied.");
+      setStatus(`${label} copied.`);
     } catch {
+      setManualText(value);
       setShowText(true);
-      setStatus("Select and copy the result text below.");
+      setStatus(`Select and copy the ${label.toLowerCase()} below.`);
     }
   };
 
@@ -127,12 +131,17 @@ export function ResultShare(result: ResultShareProps) {
     <section className="result-share" aria-labelledby="result-share-title">
       <h2 id="result-share-title" className="end-game__section-title">Share your result</h2>
       <div className="result-share__actions">
-        <button type="button" onClick={copy}>Copy result text</button>
+        <button type="button" onClick={() => copy(summary, "Result")}>Copy result text</button>
         <button type="button" onClick={download} disabled={downloading}>Download result image</button>
+        {challengeLink && (
+          <button type="button" onClick={() => copy(new URL(challengeLink, window.location.href).href, "Challenge link")}>
+            Copy challenge link
+          </button>
+        )}
       </div>
       {status && <p role="status">{status}</p>}
       {showText && (
-        <textarea aria-label="Result text" readOnly rows={5} value={summary}
+        <textarea aria-label={manualText === summary ? "Result text" : "Challenge link"} readOnly rows={5} value={manualText}
           onFocus={event => event.currentTarget.select()} />
       )}
     </section>

@@ -10,6 +10,63 @@ const viewports = [
   { width: 1024, height: 768 }
 ];
 
+test("seeded challenge links produce the same result in fresh browsers after a reload", { timeout: 60000 }, async t => {
+  const browser = await chromium.launch();
+  t.after(() => browser.close());
+  const code = "v1.human.12345678";
+  const results = await Promise.all([false, true].map(async reload => {
+    const page = await browser.newPage({ viewport: viewports[1], reducedMotion: "reduce" });
+    try {
+      await serveGame(page);
+      await page.goto(origin + "/?challenge=" + (reload ? code : "v2.human.12345678"));
+      if (!reload) {
+        await page.getByText("This challenge uses an unsupported rules version.").waitFor();
+        await page.goto(origin + "/?challenge=" + code);
+      }
+      await page.getByRole("button", { name: "Play challenge", exact: true }).click();
+      for (let turn = 1; turn <= 20; turn++) {
+        await page.getByRole("button", { name: /Roll Dice/ }).click();
+        const dialog = page.getByRole("dialog");
+        await dialog.waitFor();
+        if (reload && turn === 4) {
+          await page.reload();
+          await page.getByRole("button", { name: "Resume", exact: true }).click();
+          await dialog.waitFor();
+        }
+        const purchase = dialog.getByRole("button", { name: /^Buy for / });
+        if (turn % 2 === 0 && await purchase.count()) await purchase.click();
+        else await dialog.getByRole("button", { name: /^(Pass|Continue)$/ }).click();
+      }
+      const saved = await page.evaluate(() => JSON.parse(localStorage.getItem("spooky-local-run")).run);
+      await page.getByRole("button", { name: /End Game/ }).click();
+      await page.getByRole("button", { name: "Copy challenge link" }).click();
+      assert.equal(await page.getByRole("textbox", { name: "Challenge link" }).inputValue(), origin + "/?challenge=" + code);
+      return { money: saved.money, properties: saved.ownedProperties, space: saved.spaceId, log: saved.gameLog };
+    } finally {
+      await page.close();
+    }
+  }));
+  assert.deepEqual(results[0], results[1]);
+
+  const creator = await browser.newPage({ viewport: viewports[1], reducedMotion: "reduce" });
+  await serveGame(creator);
+  await creator.goto(origin);
+  await creator.getByRole("checkbox", { name: "Create a shareable challenge" }).check();
+  await creator.getByRole("button", { name: "Choose Human token 1" }).click();
+  await creator.waitForFunction(() => localStorage.getItem("spooky-local-run") !== null);
+  const created = await creator.evaluate(() => JSON.parse(localStorage.getItem("spooky-local-run")).run);
+  assert.equal(created.challenge.rules, "v1");
+  assert.equal(created.tokenId, "human-woman");
+  assert.ok(Number.isInteger(created.challenge.seed));
+  await creator.goto(origin + "/?challenge=" + code);
+  await creator.getByRole("button", { name: "Decline challenge" }).click();
+  await creator.getByRole("button", { name: "Resume", exact: true }).click();
+  await creator.getByRole("button", { name: /Roll Dice/ }).waitFor();
+  const resumed = await creator.evaluate(() => JSON.parse(localStorage.getItem("spooky-local-run")).run);
+  assert.deepEqual(resumed.challenge, created.challenge);
+  assert.equal(resumed.tokenId, created.tokenId);
+});
+
 test("resume an unresolved landing and a committed purchase without charging twice", { timeout: 45000 }, async t => {
   const browser = await chromium.launch();
   t.after(() => browser.close());

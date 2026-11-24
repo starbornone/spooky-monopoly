@@ -1,8 +1,10 @@
 import { boardSpaces, MAX_TURNS, PLAYER_TOKENS } from "../data";
+import { challengeVersion, isChallengeSeed } from "./challenge";
 import type { PurchaseBehavior } from "./tokenUnlocks";
 
 export interface LocalRun {
   tokenId: string;
+  challenge?: { seed: number; rules: typeof challengeVersion };
   spaceId: number;
   turnCount: number;
   money: number;
@@ -24,6 +26,7 @@ function isLocalRun(value: unknown): value is LocalRun {
   const run = value as Partial<LocalRun>;
   const behavior = run.purchaseBehavior;
   return PLAYER_TOKENS.some(token => token.id === run.tokenId) &&
+    (run.challenge === undefined || (!!run.challenge && run.challenge.rules === challengeVersion && isChallengeSeed(run.challenge.seed))) &&
     boardSpaces.some(space => space.id === run.spaceId) &&
     isCounter(run.turnCount) && run.turnCount <= MAX_TURNS &&
     isCounter(run.money) &&

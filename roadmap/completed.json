@@ -1,7 +1,7 @@
 {
   "schema": "name -roadmap/v1",
   "file": "completed",
-  "updatedAt": "2026-11-24T21:19:13+11:00",
+  "updatedAt": "2026-11-24T21:27:16+11:00",
   "project": {
     "key": "spooky-monopoly",
     "title": "Spooky Monopoly",
@@ -119,6 +119,13 @@
       "group": "Sharing",
       "notes": "Added plain-text result copying with a selectable fallback and a downloadable PNG generated in the browser. Chromium verifies the faction, cash and property totals in the copied text, the clipboard fallback, and the PNG header with Supabase disabled.",
       "completedAt": "2026-11-24T21:19:13+11:00"
+    },
+    {
+      "id": "add-seeded-challenges",
+      "title": "Share repeatable challenges using a seeded run",
+      "group": "Replay",
+      "notes": "Extracted deterministic solo turn rules and added opt-in versioned challenge links with stable token IDs and a saved seed. Chromium verifies two independent browser profiles produce the same result and turn log with identical actions, including after one reloads mid-turn. It also verifies unsupported rules feedback, copying the link, and keeping an existing save when declining a challenge.",
+      "completedAt": "2026-11-24T21:27:16+11:00"
     }
   ]
 }

@@ -33,3 +33,11 @@ These records describe choices already reflected in the [README](../README.md) a
 **Decision** — Store open, finished, and dropped work in separate files with a shared project identity and permanent item ids.
 
 **Consequences** — Changing state requires moving a record and updating the timestamps of the files touched. See [Roadmap format](roadmap-format.md).
+
+## 5. Version seeded challenges with the solo rules
+
+**Context** — A link should reproduce the same run when two players take the same actions, including after one resumes a saved challenge.
+
+**Decision** — Encode the exact token, unsigned seed, and rules version in the link. Derive each turn's random inputs from its turn number and seed, then resolve the turn against the current local board state.
+
+**Consequences** — Changes to board data, token abilities, or turn resolution that affect an outcome require a new challenge version or continued support for the previous rules. A link shares the starting conditions and random inputs. Player choices can still change the outcome and later vampire targeting. See [Getting started](getting-started.md).

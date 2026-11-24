@@ -20,6 +20,7 @@ interface EndGameProps {
   playerToken: PlayerToken | null;
   onRestart: () => void;
   earnedUnlocks: (keyof UnlockStatus)[];
+  challengeLink?: string;
 }
 
 export const EndGame = ({
@@ -28,6 +29,7 @@ export const EndGame = ({
   playerToken,
   onRestart,
   earnedUnlocks,
+  challengeLink,
 }: EndGameProps) => {
   const totalRevenue = ownedProperties.reduce(
     (sum, prop) => sum + (prop.rent || 0),
@@ -182,6 +184,7 @@ export const EndGame = ({
         properties={ownedProperties.length}
         propertyValue={totalPropertyValue}
         achievements={achievements.map(achievement => achievement.title)}
+        challengeLink={challengeLink}
       />
       <button className="end-game__button" onClick={onRestart}>
         👻 Restart the Haunting Cycle 👻

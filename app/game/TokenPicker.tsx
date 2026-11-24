@@ -6,19 +6,22 @@ import { factionDetails, isTokenUnlocked } from "./utils/tokenUnlocks";
 import "./TokenPicker.css";
 
 interface TokenPickerProps {
-  onChoose: (token: PlayerToken) => void;
+  onChoose: (token: PlayerToken, seeded: boolean) => void;
   checkingSave?: boolean;
   savedGame?: {
     turnCount: number;
     onResume: () => void;
     onStartNew: () => void;
   };
+  invitation?: { token: PlayerToken; onStart: () => void; onDismiss: () => void };
+  challengeError?: string;
 }
 
-export const TokenPicker = ({ onChoose, checkingSave, savedGame }: TokenPickerProps) => {
+export const TokenPicker = ({ onChoose, checkingSave, savedGame, invitation, challengeError }: TokenPickerProps) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
   const [selected, setSelected] = useState<string | null>(null);
+  const [seeded, setSeeded] = useState(false);
   const buttonRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const resumeRef = useRef<HTMLButtonElement>(null);
 
@@ -42,7 +45,7 @@ export const TokenPicker = ({ onChoose, checkingSave, savedGame }: TokenPickerPr
 
   useEffect(() => {
     if (checkingSave) return;
-    if (savedGame) {
+    if (savedGame || invitation) {
       resumeRef.current?.focus();
       return;
     }
@@ -55,7 +58,7 @@ export const TokenPicker = ({ onChoose, checkingSave, savedGame }: TokenPickerPr
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoaded, refreshKey, checkingSave, savedGame]);
+  }, [isLoaded, refreshKey, checkingSave, savedGame, invitation]);
 
   const handleKeyDown = (
     e: React.KeyboardEvent<HTMLButtonElement>,
@@ -71,7 +74,7 @@ export const TokenPicker = ({ onChoose, checkingSave, savedGame }: TokenPickerPr
         e.preventDefault();
         const token = PLAYER_TOKENS[tokenIndex];
         setSelected(token.icon);
-        setTimeout(() => onChoose(token), 180);
+        setTimeout(() => onChoose(token, seeded), 180);
       }
       return;
     }
@@ -173,11 +176,28 @@ export const TokenPicker = ({ onChoose, checkingSave, savedGame }: TokenPickerPr
     );
   }
 
+  if (invitation) {
+    return (
+      <div className="token-picker" role="dialog" aria-modal="true" aria-labelledby="challenge-title">
+        <div className="token-picker__content">
+          <h2 id="challenge-title" className="token-picker__title">Seeded challenge</h2>
+          <p className="token-picker__hint">Play as a {factionDetails[invitation.token.group].name} using the shared seed.</p>
+          {savedGame && <p className="token-picker__hint">Starting this challenge replaces your current save.</p>}
+          <div className="token-picker__saved-actions">
+            <button type="button" ref={resumeRef} onClick={invitation.onStart}>Play challenge</button>
+            <button type="button" onClick={invitation.onDismiss}>Decline challenge</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (savedGame) {
     return (
       <div className="token-picker" role="dialog" aria-modal="true" aria-labelledby="saved-game-title">
         <div className="token-picker__content">
           <h2 id="saved-game-title" className="token-picker__title">Saved game</h2>
+          {challengeError && <p className="token-picker__hint" role="status">{challengeError}</p>}
           <p className="token-picker__hint">Turn {savedGame.turnCount} is saved in this browser.</p>
           <div className="token-picker__saved-actions">
             <button type="button" ref={resumeRef} onClick={savedGame.onResume}>Resume</button>
@@ -192,6 +212,11 @@ export const TokenPicker = ({ onChoose, checkingSave, savedGame }: TokenPickerPr
     <div className="token-picker" role="dialog" aria-modal="true" aria-labelledby="token-picker-title">
       <div className="token-picker__content">
         <h2 id="token-picker-title" className="token-picker__title">Choose Your Token</h2>
+        {challengeError && <p className="token-picker__hint" role="status">{challengeError}</p>}
+        <label className="token-picker__seed-option">
+          <input type="checkbox" checked={seeded} onChange={event => setSeeded(event.target.checked)} />
+          Create a shareable challenge
+        </label>
 
         <div className="token-picker__grid" key={refreshKey}>
           {PLAYER_TOKENS.map((token, index) => {
@@ -211,7 +236,7 @@ export const TokenPicker = ({ onChoose, checkingSave, savedGame }: TokenPickerPr
                 onClick={() => {
                   if (isLocked) return;
                   setSelected(token.icon);
-                  setTimeout(() => onChoose(token), 180);
+                  setTimeout(() => onChoose(token, seeded), 180);
                 }}
                 onKeyDown={e => handleKeyDown(e, index)}
                 aria-label={`${isLocked ? "Locked " : "Choose "}${faction.name} token ${index % 3 + 1}`}
