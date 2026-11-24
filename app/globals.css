@@ -330,18 +330,3 @@ pre code {
     page-break-after: avoid;
   }
 }
-
-:root {
-  --color-floral-white: var(--color-text);
-  --color-timberwolf: var(--color-text-muted);
-  --color-black-olive: var(--color-moss-border);
-  --color-eerie-black: var(--color-wood);
-  --color-rich-black: var(--color-charcoal);
-  --color-jasper: var(--color-copper);
-  --color-flame: var(--color-copper-light);
-  --color-english-violet: var(--color-wood);
-  --color-dark-purple: var(--color-burgundy);
-  --color-raisin-black: var(--color-wood);
-  --color-hunyadi-yellow: var(--color-amber);
-  --color-prussian-blue: var(--color-moss);
-}

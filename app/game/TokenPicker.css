@@ -1,6 +1,6 @@
 .token-picker {
   align-items: center;
-  background-color: rgba(17, 21, 28, 0.6);
+  background-color: var(--color-overlay);
   display: flex;
   height: 100%;
   justify-content: center;
@@ -12,9 +12,9 @@
 }
 
 .token-picker__content {
-  background-color: var(--color-prussian-blue);
-  border: 6px solid var(--color-charcoal);
-  box-shadow: rgba(17, 21, 28, 0.6) 0px 5px 15px;
+  background-color: var(--color-charcoal);
+  border: 6px solid var(--color-border);
+  box-shadow: 0 0.375rem 1.125rem var(--color-shadow);
   max-width: 500px;
   padding: 2rem;
   position: relative;
@@ -25,7 +25,7 @@
 }
 
 .token-picker__title {
-  color: var(--color-floral-white);
+  color: var(--color-text);
   margin: 0 0 1rem 0;
   text-align: center;
 }
@@ -39,12 +39,15 @@
 }
 
 .token-picker__option {
+  --token-surface: var(--color-wood);
   aspect-ratio: 1;
-  background: transparent;
-  border: 3px solid var(--color-charcoal);
+  background: var(--token-surface);
+  border: 0.125rem solid var(--color-border);
+  border-radius: 0.5rem;
   cursor: pointer;
   display: grid;
-  gap: 0.125rem;
+  gap: 0.25rem;
+  grid-template-rows: minmax(0, 1fr) auto;
   padding: 0.75rem;
   place-items: center;
   width: 100%;
@@ -55,50 +58,67 @@
     border-color 160ms ease;
 }
 
+.token-picker__option--vampires {
+  --token-surface: var(--color-burgundy);
+}
+
+.token-picker__option--elves {
+  --token-surface: var(--color-moss);
+}
+
 .token-picker__option:hover {
-  background-color: var(--color-charcoal);
-  border-color: var(--color-flame);
+  background-color: var(--color-border);
+  border-color: var(--color-copper-light);
 }
 
 .token-picker__option:focus {
   outline: none;
-  box-shadow: 0 0 0 2px var(--color-prussian-blue), 0 0 0 5px var(--color-flame);
+  box-shadow: 0 0 0 0.125rem var(--color-charcoal), 0 0 0 0.3125rem var(--color-copper-light);
 }
 
 .token-picker__option--selected {
   transform: scale(1.06);
-  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35);
-  border-color: var(--color-jasper);
+  box-shadow: 0 8px 22px var(--color-shadow);
+  border-color: var(--color-copper);
 }
 
 .token-picker__option--locked {
-  opacity: 0.5;
   cursor: not-allowed;
-  position: relative;
+  color: var(--color-text-muted);
+}
+
+.token-picker__option--locked .token-picker__portrait {
+  opacity: 0.6;
 }
 
 .token-picker__option--locked:hover {
-  background-color: transparent;
-  border-color: var(--color-charcoal);
+  background-color: var(--token-surface);
+  border-color: var(--color-border);
   transform: none;
 }
 
 .token-picker__lock-info {
   font-size: 0.7rem;
-  text-align: center;
-  color: var(--color-floral-white);
-  line-height: 1.2;
+}
+
+.token-picker__option-label {
+  display: grid;
+  font-size: clamp(0.8rem, 3.6vw, 1rem);
+  gap: 0.125rem;
+  line-height: 1.05;
 }
 
 .token-picker__portrait {
   border-radius: 0.375rem;
   display: block;
-  height: auto;
-  width: min(80%, 4.5rem);
+  height: 100%;
+  max-height: 4.5rem;
+  object-fit: contain;
+  width: auto;
 }
 
 .token-picker__hint {
-  color: var(--color-floral-white);
+  color: var(--color-text);
   font-size: 0.9rem;
   margin: 0;
   text-align: center;
@@ -115,7 +135,7 @@
   display: inline-flex;
   align-items: center;
   min-height: 2.75rem;
-  color: var(--color-floral-white);
+  color: var(--color-text);
   text-decoration: underline;
 }
 
@@ -130,8 +150,8 @@
   min-height: 2.75rem;
   padding: 0.5rem 1rem;
   border: 0;
-  background: var(--color-jasper);
-  color: var(--color-rich-black);
+  background: var(--color-copper);
+  color: var(--color-charcoal);
   font-weight: 600;
 }
 
@@ -142,10 +162,6 @@
 
   .token-picker__option {
     padding: 0.25rem;
-  }
-
-  .token-picker__portrait {
-    width: min(76%, 4.5rem);
   }
 
   .token-picker__hint + .token-picker__hint {
@@ -168,7 +184,7 @@
 }
 
 .token-picker__loading p {
-  color: var(--color-floral-white);
+  color: var(--color-text);
   font-size: 0.9rem;
   margin: 0;
   text-align: center;

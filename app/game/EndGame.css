@@ -1,6 +1,6 @@
 .end-game {
-  background-color: var(--color-rich-black);
-  border: 6px solid var(--color-dark-purple);
+  background-color: var(--color-charcoal);
+  border: 6px solid var(--color-burgundy);
   display: flex;
   flex-direction: column;
   gap: 2rem;
@@ -9,7 +9,7 @@
   min-height: 96vh;
   overflow-y: auto;
   padding: 3rem;
-  scrollbar-color: var(--color-jasper) var(--color-rich-black);
+  scrollbar-color: var(--color-copper) var(--color-charcoal);
   scrollbar-width: thin;
   width: 100%;
 }
@@ -19,27 +19,32 @@
 }
 
 .game-sidebar::-webkit-scrollbar-track {
-  background: var(--color-rich-black);
+  background: var(--color-charcoal);
   border-radius: 4px;
 }
 
 .game-sidebar::-webkit-scrollbar-thumb {
-  background: var(--color-jasper);
+  background: var(--color-copper);
   border-radius: 4px;
 }
 
 .game-sidebar::-webkit-scrollbar-thumb:hover {
-  background: var(--color-flame);
+  background: var(--color-copper-light);
 }
 
 .end-game__title {
-  color: var(--color-floral-white);
-  font-size: 2.5rem;
+  color: var(--color-amber);
+  font-size: clamp(1.9rem, 5vw, 2.75rem);
   text-align: center;
 }
 
+.end-game__title .game-artwork {
+  height: 1.2em;
+  width: 1.2em;
+}
+
 .end-game__stats {
-  border: 6px solid var(--color-dark-purple);
+  border: 6px solid var(--color-burgundy);
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -48,7 +53,7 @@
 
 .end-game__stat {
   align-items: center;
-  border-bottom: 1px solid var(--color-dark-purple);
+  border-bottom: 1px solid var(--color-burgundy);
   display: flex;
   justify-content: space-between;
   padding: 0.75rem 0;
@@ -68,12 +73,12 @@
 }
 
 .end-game__section {
-  border: 6px solid var(--color-dark-purple);
+  border: 6px solid var(--color-burgundy);
   padding: 1.5rem;
 }
 
 .end-game__section-title {
-  color: var(--color-timberwolf);
+  color: var(--color-text-muted);
   font-size: 1.2rem;
   font-weight: 400;
   margin: 0 0 1rem 0;
@@ -82,33 +87,33 @@
 .end-game__section-list {
   display: grid;
   gap: 0.5rem;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(14rem, 100%), 1fr));
   list-style: none;
   margin: 0;
   padding: 0;
 }
 
 .end-game__section-list-item {
-  background-color: var(--color-charcoal);
+  background-color: var(--color-wood);
   padding: 1rem;
 }
 
 .end-game__section-text {
-  color: var(--color-floral-white);
+  color: var(--color-text);
   font-size: 1.2rem;
   line-height: 1.8;
   margin: 0 0 1rem 0;
 }
 
 .end-game__section-text--subdued {
-  color: var(--color-timberwolf);
+  color: var(--color-text-muted);
   font-size: 0.9rem;
 }
 
 .end-game__button {
-  background-color: var(--color-jasper);
+  background-color: var(--color-copper);
   border: none;
-  color: var(--color-rich-black);
+  color: var(--color-charcoal);
   cursor: pointer;
   font-size: 1.2rem;
   font-weight: 600;
@@ -118,5 +123,13 @@
 }
 
 .end-game__button:hover {
-  background-color: var(--color-flame);
+  background-color: var(--color-copper-light);
+}
+
+@media (max-width: 34rem) {
+  .end-game,
+  .end-game__section,
+  .end-game__stats {
+    padding: 1rem;
+  }
 }

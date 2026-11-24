@@ -3,7 +3,7 @@
   min-height: 30vh;
   overflow: auto;
   padding: 1rem 1.5rem 1rem 1rem;
-  scrollbar-color: var(--color-jasper) var(--color-rich-black);
+  scrollbar-color: var(--color-copper) var(--color-charcoal);
   scrollbar-width: thin;
 }
 
@@ -12,31 +12,38 @@
 }
 
 .game-intro::-webkit-scrollbar-track {
-  background-color: var(--color-rich-black);
+  background-color: var(--color-charcoal);
   border-radius: 4px;
 }
 
 .game-intro::-webkit-scrollbar-thumb {
-  background: var(--color-jasper);
+  background: var(--color-copper);
   border-radius: 4px;
 }
 
 .game-intro::-webkit-scrollbar-thumb:hover {
-  background: var(--color-flame);
+  background: var(--color-copper-light);
 }
 
 .game-intro__title {
-  color: var(--color-floral-white);
+  color: var(--color-text);
   font-size: 1.2rem;
   font-weight: 600;
   margin-bottom: 1rem;
 }
 
 .game-intro__monopoly {
-  font-size: 2rem;
+  color: var(--color-amber);
+  font-size: clamp(1.6rem, 3vw, 2.25rem);
+}
+
+.game-intro__monopoly .game-artwork {
+  height: 1.2em;
+  width: 1.2em;
+  margin-inline-end: 0.125rem;
 }
 
 .game-intro__description {
-  color: var(--color-timberwolf);
+  color: var(--color-text-muted);
   font-size: 0.8rem;
 }

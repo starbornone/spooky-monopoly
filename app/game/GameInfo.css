@@ -12,6 +12,6 @@
 }
 
 .game-info__value {
-  color: var(--color-floral-white);
+  color: var(--color-text);
   font-weight: 600;
 }
