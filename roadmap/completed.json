@@ -1,7 +1,7 @@
 {
   "schema": "name -roadmap/v1",
   "file": "completed",
-  "updatedAt": "2026-11-24T22:08:48+11:00",
+  "updatedAt": "2026-11-24T22:16:08+11:00",
   "project": {
     "key": "spooky-monopoly",
     "title": "Spooky Monopoly",
@@ -161,6 +161,13 @@
       "group": "Multiplayer",
       "notes": "Added the shared perimeter board with numbered position and ownership markers, overlapping tokens, and inspectable spaces. At 320 CSS pixels, Chromium verifies reachable 44-pixel controls, a keyboard roll and purchase, shared ownership labels, and closing space details without resolving the choice. Accepted turns update the acting seat immediately and restore focus to the next available action.",
       "completedAt": "2026-11-24T22:08:48+11:00"
+    },
+    {
+      "id": "add-multiplayer-reconnect-and-leave",
+      "title": "Restore player seats and handle abandoned matches",
+      "group": "Multiplayer",
+      "notes": "Added persisted seat presence, a visible reconnect window, a confirmed leave action, and a server-checked abandonment action. HTTP tests verify legacy room migration, rejection within the grace period, seat recovery, and terminal state without an extra turn or score. Chromium drops the first accepted roll response, then verifies recovery from the committed snapshot and exercises the visible grace period and abandonment in a second room.",
+      "completedAt": "2026-11-24T22:16:08+11:00"
     }
   ]
 }

@@ -15,6 +15,21 @@ interface RoomRow {
   host_ready: number;
   guest_ready: number;
   match_json: string | null;
+  host_seen_at: number;
+  guest_seen_at: number | null;
+  closed_seat: PilotSeat | null;
+  closed_reason: "left" | "timeout" | null;
+}
+
+const awayAfter = 15_000;
+const abandonAfter = 75_000;
+
+function presence(lastSeen: number | null, now: number) {
+  const elapsed = lastSeen === null ? 0 : Math.max(0, now - lastSeen);
+  return {
+    away: elapsed >= awayAfter,
+    graceSeconds: Math.max(0, Math.ceil((abandonAfter - elapsed) / 1000))
+  };
 }
 
 export function pilotConfig() {
@@ -64,11 +79,34 @@ export class PilotRooms implements PilotMatchStore {
           PRIMARY KEY (room_id, seat, action_id)
         ) STRICT;
       `);
-      return new PilotRooms(db);
+      const rooms = new PilotRooms(db);
+      rooms.migratePresence();
+      return rooms;
     } catch (error) {
       db.close();
       throw error;
     }
+  }
+
+  private migratePresence() {
+    const hasPresence = () => this.db.prepare("PRAGMA table_info(pilot_rooms)").all()
+      .some(column => column.name === "closed_reason");
+    if (hasPresence()) return;
+
+    this.transaction(() => {
+      if (hasPresence()) return;
+      this.db.exec(`
+        ALTER TABLE pilot_rooms ADD COLUMN host_seen_at INTEGER NOT NULL DEFAULT 0;
+        ALTER TABLE pilot_rooms ADD COLUMN guest_seen_at INTEGER;
+        ALTER TABLE pilot_rooms ADD COLUMN closed_seat INTEGER CHECK (closed_seat IN (0, 1));
+        ALTER TABLE pilot_rooms ADD COLUMN closed_reason TEXT CHECK (closed_reason IN ('left', 'timeout'));
+      `);
+      const now = Date.now();
+      this.db.prepare(`
+        UPDATE pilot_rooms
+        SET host_seen_at = ?, guest_seen_at = CASE WHEN guest_hash IS NOT NULL THEN ? END
+      `).run(now, now);
+    });
   }
 
   close() {
@@ -91,17 +129,17 @@ export class PilotRooms implements PilotMatchStore {
     const roomId = randomBytes(16).toString("hex");
     const invite = secret();
     const credential = secret();
-    this.db.prepare("INSERT INTO pilot_rooms (id, invite_hash, host_hash) VALUES (?, ?, ?)")
-      .run(roomId, digest(invite), digest(credential));
+    this.db.prepare("INSERT INTO pilot_rooms (id, invite_hash, host_hash, host_seen_at) VALUES (?, ?, ?, ?)")
+      .run(roomId, digest(invite), digest(credential), Date.now());
     return { roomId, invite, credential };
   }
 
   joinRoom(roomId: string, invite: string) {
     const credential = secret();
     const { changes } = this.db.prepare(`
-      UPDATE pilot_rooms SET guest_hash = ?, guest_name = 'Guest'
-      WHERE id = ? AND invite_hash = ? AND guest_hash IS NULL
-    `).run(digest(credential), roomId, digest(invite));
+      UPDATE pilot_rooms SET guest_hash = ?, guest_name = 'Guest', guest_seen_at = ?
+      WHERE id = ? AND invite_hash = ? AND guest_hash IS NULL AND closed_reason IS NULL
+    `).run(digest(credential), Date.now(), roomId, digest(invite));
     return changes === 1 ? credential : null;
   }
 
@@ -115,27 +153,57 @@ export class PilotRooms implements PilotMatchStore {
     return row?.seat ?? null;
   }
 
-  readRoom(roomId: string) {
+  touch(roomId: string, seat: PilotSeat) {
+    const column = seat === 0 ? "host_seen_at" : "guest_seen_at";
+    const now = Date.now();
+    this.db.prepare(`
+      UPDATE pilot_rooms SET ${column} = ?
+      WHERE id = ? AND closed_reason IS NULL AND (${column} IS NULL OR ${column} <= ?)
+    `).run(now, roomId, now - 3000);
+  }
+
+  readRoom(roomId: string, now = Date.now()) {
     const row = this.db.prepare(`
-      SELECT id, host_name, guest_name, host_ready, guest_ready, match_json
+      SELECT id, host_name, guest_name, host_ready, guest_ready, match_json,
+        host_seen_at, guest_seen_at, closed_seat, closed_reason
       FROM pilot_rooms WHERE id = ?
     `).get(roomId) as RoomRow | undefined;
     if (!row) return null;
     return {
       id: row.id,
       players: [
-        { name: row.host_name, ready: Boolean(row.host_ready) },
-        row.guest_name === null ? null : { name: row.guest_name, ready: Boolean(row.guest_ready) }
+        { name: row.host_name, ready: Boolean(row.host_ready), presence: presence(row.host_seen_at, now) },
+        row.guest_name === null ? null : {
+          name: row.guest_name, ready: Boolean(row.guest_ready), presence: presence(row.guest_seen_at, now)
+        }
       ] as const,
-      match: row.match_json ? JSON.parse(row.match_json) as PilotMatch : null
+      match: row.match_json ? JSON.parse(row.match_json) as PilotMatch : null,
+      closed: row.closed_reason === null ? null : { reason: row.closed_reason, seat: row.closed_seat }
     };
+  }
+
+  closeRoom(roomId: string, seat: PilotSeat, action: "leave" | "abandon") {
+    return this.transaction(() => {
+      const room = this.readRoom(roomId);
+      if (!room) return "room-not-found" as const;
+      if (room.closed) return null;
+      if (room.match?.phase.kind === "finished") return "match-finished" as const;
+
+      const other = seat === 0 ? 1 : 0;
+      if (action === "abandon") {
+        if (!room.match || room.players[other]?.presence.graceSeconds !== 0) return "grace-period" as const;
+      }
+      this.db.prepare("UPDATE pilot_rooms SET closed_seat = ?, closed_reason = ? WHERE id = ?")
+        .run(action === "leave" ? seat : other, action === "leave" ? "left" : "timeout", roomId);
+      return null;
+    });
   }
 
   ready(roomId: string, seat: PilotSeat, name: string): boolean {
     return this.transaction(() => {
       const statement = seat === 0
-        ? "UPDATE pilot_rooms SET host_name = ?, host_ready = 1 WHERE id = ? AND match_json IS NULL"
-        : "UPDATE pilot_rooms SET guest_name = ?, guest_ready = 1 WHERE id = ? AND match_json IS NULL";
+        ? "UPDATE pilot_rooms SET host_name = ?, host_ready = 1 WHERE id = ? AND match_json IS NULL AND closed_reason IS NULL"
+        : "UPDATE pilot_rooms SET guest_name = ?, guest_ready = 1 WHERE id = ? AND match_json IS NULL AND closed_reason IS NULL";
       if (this.db.prepare(statement).run(name, roomId).changes !== 1) return false;
 
       const room = this.readRoom(roomId);
@@ -164,7 +232,7 @@ export class PilotRooms implements PilotMatchStore {
       if (existing) return false;
       const updated = this.db.prepare(`
         UPDATE pilot_rooms SET revision = ?, match_json = ?
-        WHERE id = ? AND revision = ? AND match_json IS NOT NULL
+        WHERE id = ? AND revision = ? AND match_json IS NOT NULL AND closed_reason IS NULL
       `).run(receipt.match.revision, JSON.stringify(receipt.match), roomId, expectedRevision);
       if (updated.changes !== 1) return false;
       this.db.prepare("INSERT INTO pilot_receipts VALUES (?, ?, ?, ?)")

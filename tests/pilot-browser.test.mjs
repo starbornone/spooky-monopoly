@@ -5,6 +5,7 @@ import { mkdtemp, rm } from "node:fs/promises";
 import { createServer, request } from "node:http";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { DatabaseSync } from "node:sqlite";
 import { test } from "node:test";
 import next from "next";
 import { chromium } from "playwright-core";
@@ -25,7 +26,7 @@ async function attach(page, forward) {
   });
 }
 
-function roomRelay(socketPath) {
+function roomRelay(socketPath, dropReply) {
   let pending = Promise.resolve();
   const deliver = async (route, incoming, url) => {
     const headers = await incoming.allHeaders();
@@ -50,7 +51,8 @@ function roomRelay(socketPath) {
       outgoing.on("error", reject);
       outgoing.end(body);
     });
-    await route.fulfill(response);
+    if (dropReply(incoming, response)) await route.abort("connectionreset");
+    else await route.fulfill(response);
   };
   return (route, incoming, url) => {
     const nextRequest = pending.then(() => deliver(route, incoming, url));
@@ -69,6 +71,7 @@ test("two browsers can join, resume a seat and finish the private pilot in sync"
   const app = next({ dev: false, hostname: "localhost", port: 3000 });
   const server = createServer(app.getRequestHandler());
   let browser;
+  let droppedFirstTurn = false;
 
   try {
     await app.prepare();
@@ -78,7 +81,12 @@ test("two browsers can join, resume a seat and finish the private pilot in sync"
     browser = await chromium.launch();
     const host = await browser.newPage({ viewport: { width: 320, height: 700 } });
     const guest = await browser.newPage({ viewport: { width: 320, height: 700 } });
-    const forward = roomRelay(socketPath);
+    const forward = roomRelay(socketPath, (request, response) => {
+      if (droppedFirstTurn || response.status !== 200 || request.method() !== "POST" ||
+        request.postDataJSON()?.type !== "turn") return false;
+      droppedFirstTurn = true;
+      return true;
+    });
     await Promise.all([attach(host, forward), attach(guest, forward)]);
     await host.goto(origin);
     await host.getByRole("link", { name: "Play with a friend" }).click();
@@ -120,6 +128,7 @@ test("two browsers can join, resume a seat and finish the private pilot in sync"
       timings.push(performance.now() - started);
       await active.locator(`main[data-revision="${revision}"]`).waitFor();
       if (revision === 1) {
+        assert.equal(droppedFirstTurn, true);
         await active.waitForFunction(() => document.activeElement?.textContent === "Buy");
         const board = active.getByRole("region", { name: "Shared board" });
         const square = board.locator(".pilot-board__tile--active");
@@ -152,6 +161,31 @@ test("two browsers can join, resume a seat and finish the private pilot in sync"
     assert.ok(timings.length >= 20);
     const p95 = timings.sort((a, b) => a - b)[Math.ceil(timings.length * 0.95) - 1];
     assert.ok(p95 < 3000, `Expected p95 < 3000 ms, got ${Math.round(p95)} ms`);
+
+    await host.goto(origin + "/multiplayer");
+    await host.getByRole("button", { name: "Create private room" }).click();
+    await guest.goto(await host.getByRole("textbox", { name: "Invite link" }).inputValue());
+    await guest.getByRole("button", { name: "Join as guest" }).click();
+    await host.getByRole("button", { name: "Ready" }).click();
+    await guest.getByRole("button", { name: "Ready" }).click();
+    await host.locator('main[data-revision="0"]').waitFor();
+    await guest.close();
+
+    const roomId = new URL(host.url()).searchParams.get("room");
+    const database = new DatabaseSync(process.env.SPOOKY_PILOT_DB_PATH);
+    try {
+      const age = database.prepare("UPDATE pilot_rooms SET guest_seen_at = ? WHERE id = ?");
+      age.run(Date.now() - 20_000, roomId);
+      await host.getByText(/seconds to reconnect/).waitFor();
+      assert.equal(await host.getByRole("button", { name: "End abandoned match" }).count(), 0);
+      age.run(Date.now() - 80_000, roomId);
+    } finally {
+      database.close();
+    }
+    await host.getByRole("button", { name: "End abandoned match" }).click();
+    await host.getByText("The match was abandoned. No result was recorded.").waitFor();
+    assert.equal(await host.getByText(/Scores:/).count(), 0);
+    assert.equal(await host.locator("main").getAttribute("data-revision"), "0");
   } finally {
     await browser?.close();
     if (server.listening) await new Promise(resolve => server.close(resolve));

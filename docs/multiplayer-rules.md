@@ -20,7 +20,9 @@ This is the rules contract for the first private multiplayer pilot. Use the exis
 
 Score each player by cash plus the total posted purchase value of the properties they own. Equal scores are a shared result. The pilot has no trades, auctions, mortgages, or elimination. Keep its results separate from solo global statistics.
 
-Leaving or losing a connection never makes a property choice for the absent player. Reconnecting returns the same seat and pending state. Until automatic recovery and the abandonment flow are available, a supervised pilot match can be restarted if a seat cannot resume. An abandoned match has no scored outcome.
+Leaving or losing a connection never makes a property choice for the absent player. Reconnecting returns the same seat, committed board, and pending decision. After a failed turn request the page refreshes from the server before allowing another action. If the server had already accepted the turn, the recovered board reflects it.
+
+A seat is shown as away after 15 seconds without recorded activity. The remaining player can end an abandoned match after a further 60 seconds. The server checks the grace period when the player selects **End abandoned match**. A player can also confirm **Leave match** to close it immediately. In either case the game keeps the last committed board and records no score or winner.
 
 ## Examples for tests and playtesting
 
@@ -62,4 +64,6 @@ The pilot runs on one host with a local database file. Keep the instance restric
 
 The room URL carries the room ID. The invite is in the fragment until the guest joins, and the server accepts it only once. The browser sends its seat credential as a room-scoped HTTP-only cookie. The database stores credential hashes. The page polls every 1.5 seconds and refreshes when it becomes visible again. A local Chromium test refreshes a guest seat after a roll, finishes the match across two profiles, and checks that the 95th percentile time for observing a turn is below three seconds.
 
-The board uses numbered seat markers to show where both players are and who owns each property. Select a square to inspect its full name, price, and rent. Closing those details leaves any pending buy or pass decision intact. The turn controls stay at the bottom on small screens. Abandonment remains open.
+The board uses numbered seat markers to show where both players are and who owns each property. Select a square to inspect its full name, price, and rent. Closing those details leaves any pending buy or pass decision intact. The turn controls stay at the bottom on small screens.
+
+Existing pilot database files gain the presence fields when the server next opens them. Existing seat credentials and turns are preserved.

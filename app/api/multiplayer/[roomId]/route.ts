@@ -15,6 +15,7 @@ export async function GET(request: NextRequest, { params }: Context) {
   return withPilotRooms(request, rooms => {
     const seat = rooms.authenticate(roomId, request.cookies.get(seatCookieName(roomId))?.value);
     if (seat === null) return pilotError("seat-required", 403);
+    rooms.touch(roomId, seat);
     return pilotJson({ ok: true, seat, room: rooms.readRoom(roomId) });
   });
 }
@@ -34,6 +35,13 @@ export async function POST(request: NextRequest, { params }: Context) {
       return seatResponse(roomId, credential, origin, { ok: true, seat: 1, room: rooms.readRoom(roomId) }, 200);
     }
     if (seat === null) return pilotError("seat-required", 403);
+    rooms.touch(roomId, seat);
+    if (body.type === "leave" || body.type === "abandon") {
+      const error = rooms.closeRoom(roomId, seat, body.type);
+      if (error) return pilotError(error, 409);
+      return pilotJson({ ok: true, seat, room: rooms.readRoom(roomId) });
+    }
+    if (rooms.readRoom(roomId)?.closed) return pilotError("room-closed", 409);
     if (body.type === "ready") {
       const name = typeof body.name === "string" ? body.name.trim() : "";
       if (!name || name.length > 32) return pilotError("invalid-name", 400);

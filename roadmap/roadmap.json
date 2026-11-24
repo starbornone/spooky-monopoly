@@ -1,7 +1,7 @@
 {
   "schema": "name -roadmap/v1",
   "file": "roadmap",
-  "updatedAt": "2026-11-24T22:08:48+11:00",
+  "updatedAt": "2026-11-24T22:16:08+11:00",
   "project": {
     "key": "spooky-monopoly",
     "title": "Spooky Monopoly",
@@ -32,12 +32,6 @@
       "title": "Define and test the two-seat match rules",
       "group": "Multiplayer",
       "notes": "Phase 3 (Later). Multiplayer stage 1 (supervised two-player pilot). Record the contract in docs/multiplayer-rules.md before changing the engine. Prototype equal human seats, random first seat, and 10 rounds with one turn per player per round. Define legal Buy and Pass actions for unowned properties. Test posted rent transferred to the owner on landing, capped by the payer’s cash, with both players remaining through the last round. Score cash plus owned property purchase value and allow ties. Include worked examples for unaffordable rent, a purchase, and a tie. Playtest first-seat advantage before tuning rent and pacing. The proposed pilot contract and test scenarios are in docs/multiplayer-rules.md. The pilot rules now have executable tests. A paired simulation over 1,000 roll sequences gave the first seat 1,114 wins out of 2,000 matches (55.7%). Human playtesting and any balance tuning are still pending."
-    },
-    {
-      "id": "add-multiplayer-reconnect-and-leave",
-      "title": "Restore player seats and handle abandoned matches",
-      "group": "Multiplayer",
-      "notes": "Phase 3 (Later). Multiplayer stage 2 (private release). Build on the persisted room snapshot and seat credential. Restore the current revision and pending decision after refresh, disconnect, or backgrounding. Test recovery from a write committed before the connection dropped. Show who is away and give the waiting player a visible grace period and the option to end an abandoned match when it expires. Provide an explicit Leave match action. Abandonment must end once, award no competitive result, and make no purchase or pass on an absent player’s behalf."
     },
     {
       "id": "add-multiplayer",

@@ -7,10 +7,17 @@ import type { PilotMatch, PilotSeat } from "../server/multiplayer/pilotMatch";
 import { PilotBoard } from "./PilotBoard";
 import "./pilot.css";
 
+interface SeatView {
+  name: string;
+  ready: boolean;
+  presence: { away: boolean; graceSeconds: number };
+}
+
 interface RoomView {
   id: string;
-  players: readonly [{ name: string; ready: boolean }, { name: string; ready: boolean } | null];
+  players: readonly [SeatView, SeatView | null];
   match: PilotMatch | null;
+  closed: { reason: "left" | "timeout"; seat: PilotSeat } | null;
 }
 
 interface RoomReply {
@@ -31,7 +38,10 @@ const messages: Record<string, string> = {
   "seat-required": "Open an invitation to join, or use the browser that already joined.",
   "stale-revision": "The match changed. Review the latest turn.",
   "wrong-seat": "It is the other player's turn.",
-  "unaffordable": "You cannot afford this property."
+  "unaffordable": "You cannot afford this property.",
+  "grace-period": "The other player is still connected or their grace period has not ended.",
+  "room-closed": "This room has ended.",
+  "match-finished": "The match has already finished."
 };
 
 export function PilotLobby() {
@@ -43,15 +53,17 @@ export function PilotLobby() {
   const [name, setName] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [recovering, setRecovering] = useState(false);
+  const [confirmLeave, setConfirmLeave] = useState(false);
   const turnDock = useRef<HTMLElement>(null);
   const returnFocus = useRef(false);
 
   useEffect(() => {
-    if (busy || !returnFocus.current) return;
+    if (busy || recovering || !returnFocus.current) return;
     returnFocus.current = false;
     const dock = turnDock.current;
     (dock?.querySelector<HTMLElement>("button:enabled") ?? dock?.querySelector<HTMLElement>("[role='status']"))?.focus();
-  }, [busy]);
+  }, [busy, recovering]);
 
   useEffect(() => {
     const url = new URL(window.location.href);
@@ -65,11 +77,11 @@ export function PilotLobby() {
     const next = reply.room;
     if (next) {
       setRoom(current =>
-        current?.match && (next.match?.revision ?? -1) < current.match.revision ? current : next
+        current?.closed || (current?.match && (next.match?.revision ?? -1) < current.match.revision) ? current : next
       );
     } else if (reply.match) {
       const match = reply.match;
-      setRoom(current => current && match.revision >= (current.match?.revision ?? -1)
+      setRoom(current => current && !current.closed && match.revision >= (current.match?.revision ?? -1)
         ? { ...current, match }
         : current);
     }
@@ -89,13 +101,13 @@ export function PilotLobby() {
         const reply: RoomReply = await response.json();
         if (!cancelled && reply.ok) {
           updateRoom(reply);
-          setError(current => current === "Connection interrupted. Retrying." ? "" : current);
+          setRecovering(false);
         }
         if (!cancelled && !reply.ok && !(reply.code === "seat-required" && guestInvite)) {
           setError(messages[reply.code ?? ""] ?? "Could not read the room.");
         }
       } catch {
-        if (!cancelled) setError("Connection interrupted. Retrying.");
+        if (!cancelled) setRecovering(true);
       } finally {
         polling = false;
         if (!cancelled && (seat !== null || !guestInvite)) timer = setTimeout(poll, 1500);
@@ -134,7 +146,8 @@ export function PilotLobby() {
       updateRoom(reply);
       onSuccess?.(reply);
     } catch {
-      setError("Connection interrupted. Check the room state before trying again.");
+      if (roomId) setRecovering(true);
+      else setError("Connection interrupted. Try again.");
     } finally {
       setBusy(false);
     }
@@ -158,10 +171,13 @@ export function PilotLobby() {
   });
 
   const match = room?.match;
-  const activeSeat = match && match.phase.kind !== "finished"
+  const activeSeat = match && !room?.closed && match.phase.kind !== "finished"
     ? ((match.firstSeat + match.completedTurns) % 2) as PilotSeat
     : null;
   const ready = seat === null ? false : room?.players[seat]?.ready;
+  const opponent = seat === null ? null : room?.players[seat === 0 ? 1 : 0];
+  const canLeave = room && seat !== null && !room.closed && match?.phase.kind !== "finished";
+  const controlsDisabled = busy || recovering;
   const choiceId = match?.phase.kind === "choice" ? match.phase.spaceId : undefined;
   const choice = boardSpaces.find(space => space.id === choiceId);
   const turn = (action: "roll" | "buy" | "pass") => {
@@ -178,9 +194,10 @@ export function PilotLobby() {
       <Link href="/">Back to solo game</Link>
       <h1>Play with a friend</h1>
       {error && <p role="alert">{error}</p>}
+      {recovering && <p role="status">Connection interrupted. Waiting for the current room state.</p>}
       {!roomId && <button disabled={busy} onClick={create}>Create private room</button>}
       {roomId && seat === null && guestInvite && <button disabled={busy} onClick={join}>Join as guest</button>}
-      {shareLink && (
+      {shareLink && !room?.closed && (
         <label className="pilot__invite">
           Invite link
           <input value={shareLink} readOnly onFocus={event => event.currentTarget.select()} />
@@ -195,10 +212,11 @@ export function PilotLobby() {
                 {match
                   ? <span>${match.players[index].cash} · {boardSpaces[match.players[index].position].name}</span>
                   : <span>{player?.ready ? "Ready" : "Waiting"}</span>}
+                {player?.presence.away && seat !== index && !room.closed && match?.phase.kind !== "finished" && <span>Away</span>}
               </li>
             ))}
           </ul>
-          {!match && seat !== null && !ready && (
+          {!room.closed && !match && seat !== null && !ready && (
             <form onSubmit={event => {
               event.preventDefault();
               void post(`${endpoint}/${roomId}`, { type: "ready", name: name.trim() || room.players[seat]?.name });
@@ -206,10 +224,41 @@ export function PilotLobby() {
               <label htmlFor="pilot-name">Display name</label>
               <input id="pilot-name" value={name} maxLength={32} placeholder={room.players[seat]?.name}
                 onChange={event => setName(event.target.value)} />
-              <button disabled={busy}>Ready</button>
+              <button disabled={controlsDisabled}>Ready</button>
             </form>
           )}
-          {!match && ready && <p role="status">Waiting for both seats to be ready.</p>}
+          {!room.closed && !match && ready && <p role="status">Waiting for both seats to be ready.</p>}
+          {room.closed && (
+            <p role="status">
+              {room.closed.reason === "left"
+                ? `${room.closed.seat === seat ? "You left" : `${room.players[room.closed.seat ?? 0]?.name ?? "A player"} left`} the ${match ? "match" : "room"}.`
+                : "The match was abandoned."}
+              {match && " No result was recorded."}
+            </p>
+          )}
+          {activeSeat !== null && opponent?.presence.away && (
+            <section className="pilot__seat" aria-label="Opponent connection">
+              {opponent.presence.graceSeconds > 0 ? (
+                <p>{opponent.name} has {opponent.presence.graceSeconds} seconds to reconnect before you can end the match.</p>
+              ) : (
+                <button disabled={controlsDisabled}
+                  onClick={() => void post(`${endpoint}/${roomId}`, { type: "abandon" })}>End abandoned match</button>
+              )}
+            </section>
+          )}
+          {canLeave && (
+            <div className="pilot__controls">
+              {confirmLeave ? (
+                <>
+                  <p>{match ? "Leaving ends this match without a result." : "Leaving closes this room."}</p>
+                  <button disabled={controlsDisabled} onClick={() => void post(`${endpoint}/${roomId}`, { type: "leave" })}>Confirm leave</button>
+                  <button onClick={() => setConfirmLeave(false)}>Stay</button>
+                </>
+              ) : (
+                <button disabled={controlsDisabled} onClick={() => setConfirmLeave(true)}>{match ? "Leave match" : "Leave room"}</button>
+              )}
+            </div>
+          )}
           {match && <PilotBoard match={match} players={room.players} activeSeat={activeSeat} />}
           {match?.phase.kind === "finished" && (
             <p role="status">
@@ -226,13 +275,13 @@ export function PilotLobby() {
               {match.lastRoll !== null && <p>Last roll: {match.lastRoll}</p>}
               {choice && <p>{choice.name} · ${choice.price} · Rent: ${choice.rent}</p>}
               {seat === activeSeat && match.phase.kind === "roll" && (
-                <button disabled={busy} onClick={() => turn("roll")}>Roll</button>
+                <button disabled={controlsDisabled} onClick={() => turn("roll")}>Roll</button>
               )}
               {seat === activeSeat && choice && (
                 <div className="pilot__controls">
-                  <button disabled={busy || (choice.price ?? Infinity) > match.players[seat].cash}
+                  <button disabled={controlsDisabled || (choice.price ?? Infinity) > match.players[seat].cash}
                     onClick={() => turn("buy")}>Buy</button>
-                  <button disabled={busy} onClick={() => turn("pass")}>Pass</button>
+                  <button disabled={controlsDisabled} onClick={() => turn("pass")}>Pass</button>
                 </div>
               )}
             </section>

@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import { once } from "node:events";
 import { mkdtemp, rm } from "node:fs/promises";
 import { createServer, request } from "node:http";
@@ -58,6 +58,35 @@ test("private rooms isolate seats, commit turns once and keep both seats in sync
     process.env.SPOOKY_PILOT_DB_PATH = databasePath;
     assert.equal((await send(collection, { payload: {}, from: "https://elsewhere.test" })).status, 403);
 
+    const legacyId = "a".repeat(32);
+    const legacyToken = "b".repeat(48);
+    const legacy = new DatabaseSync(databasePath);
+    try {
+      legacy.exec(`
+        CREATE TABLE pilot_rooms (
+          id TEXT PRIMARY KEY,
+          invite_hash TEXT NOT NULL,
+          host_hash TEXT NOT NULL,
+          guest_hash TEXT,
+          host_name TEXT NOT NULL DEFAULT 'Host',
+          guest_name TEXT,
+          host_ready INTEGER NOT NULL DEFAULT 0,
+          guest_ready INTEGER NOT NULL DEFAULT 0,
+          revision INTEGER NOT NULL DEFAULT 0,
+          match_json TEXT
+        ) STRICT;
+      `);
+      legacy.prepare("INSERT INTO pilot_rooms (id, invite_hash, host_hash, host_name) VALUES (?, ?, ?, ?)")
+        .run(legacyId, "", createHash("sha256").update(legacyToken).digest("hex"), "Earlier host");
+    } finally {
+      legacy.close();
+    }
+    const migrated = await send(`${collection}/${legacyId}`, { cookie: `spooky-pilot-${legacyId}=${legacyToken}` });
+    assert.equal(migrated.status, 200);
+    assert.equal(migrated.data.room.players[0].name, "Earlier host");
+    assert.equal(migrated.data.room.players[0].presence.away, false);
+    assert.equal(migrated.data.room.closed, null);
+
     const created = await send(collection, { payload: {} });
     assert.equal(created.status, 201);
     assert.match(created.cookie, /HttpOnly/i);
@@ -84,7 +113,8 @@ test("private rooms isolate seats, commit turns once and keep both seats in sync
     assert.equal((await send(path, { cookie: host, payload: { type: "ready", name: "Midnight" } })).data.room.match, null);
     const started = await send(path, { cookie: guest, payload: { type: "ready", name: "Graveyard" } });
     assert.equal(started.data.room.match.revision, 0);
-    assert.deepEqual(started.data.room.players, [{ name: "Midnight", ready: true }, { name: "Graveyard", ready: true }]);
+    assert.deepEqual(started.data.room.players.map(({ name, ready }) => ({ name, ready })),
+      [{ name: "Midnight", ready: true }, { name: "Graveyard", ready: true }]);
 
     const active = [host, guest][started.data.room.match.firstSeat];
     const waiting = active === host ? guest : host;
@@ -148,6 +178,63 @@ test("private rooms isolate seats, commit turns once and keep both seats in sync
     assert.equal(match.completedTurns, 20);
     assert.deepEqual((await send(path, { cookie: host })).data.room.match, match);
     assert.deepEqual((await send(path, { cookie: guest })).data.room.match, match);
+    const finishedLeave = await send(path, { cookie: host, payload: { type: "leave" } });
+    assert.equal(finishedLeave.data.code, "match-finished");
+
+    async function startedRoom() {
+      const created = await send(collection, { payload: {} });
+      const roomPath = `${collection}/${created.data.roomId}`;
+      const hostCookie = created.cookie.split(";")[0];
+      const joined = await send(roomPath, { payload: { type: "join", invite: created.data.invite } });
+      const guestCookie = joined.cookie.split(";")[0];
+      await send(roomPath, { cookie: hostCookie, payload: { type: "ready", name: "Host" } });
+      const ready = await send(roomPath, { cookie: guestCookie, payload: { type: "ready", name: "Guest" } });
+      assert.equal(ready.data.room.match.revision, 0);
+      return { id: created.data.roomId, path: roomPath, cookies: [hostCookie, guestCookie], match: ready.data.room.match };
+    }
+    const setGuestAge = (id, seconds) => {
+      const db = new DatabaseSync(databasePath);
+      try {
+        db.prepare("UPDATE pilot_rooms SET guest_seen_at = ? WHERE id = ?").run(Date.now() - seconds * 1000, id);
+      } finally {
+        db.close();
+      }
+    };
+
+    const away = await startedRoom();
+    setGuestAge(away.id, 20);
+    const observe = () => send(away.path, { cookie: away.cookies[0] });
+    const attempt = () => send(away.path, { cookie: away.cookies[0], payload: { type: "abandon" } });
+    const absent = await observe();
+    assert.equal(absent.data.room.players[1].presence.away, true);
+    assert.ok(absent.data.room.players[1].presence.graceSeconds > 0);
+    assert.equal((await attempt()).data.code, "grace-period");
+    const returned = await send(away.path, { cookie: away.cookies[1] });
+    assert.equal(returned.data.seat, 1);
+    assert.equal(returned.data.room.players[1].presence.away, false);
+    assert.deepEqual(returned.data.room.match, away.match);
+    assert.equal((await attempt()).data.code, "grace-period");
+
+    setGuestAge(away.id, 80);
+    const ended = await attempt();
+    assert.deepEqual(ended.data.room.closed, { reason: "timeout", seat: 1 });
+    assert.deepEqual(ended.data.room.match, away.match);
+    assert.deepEqual((await attempt()).data.room, ended.data.room);
+    const rejoin = await send(away.path, { cookie: away.cookies[1] });
+    assert.deepEqual(rejoin.data.room.closed, ended.data.room.closed);
+    assert.equal((await send(away.path, { cookie: away.cookies[away.match.firstSeat], payload })).data.code, "room-closed");
+
+    const leaving = await startedRoom();
+    const first = leaving.cookies[leaving.match.firstSeat];
+    const rolled = await send(leaving.path, { cookie: first, payload });
+    assert.equal(rolled.data.match.phase.kind, "choice");
+    const left = await send(leaving.path, { cookie: first, payload: { type: "leave" } });
+    assert.deepEqual(left.data.room.closed, { reason: "left", seat: leaving.match.firstSeat });
+    assert.deepEqual(left.data.room.match, rolled.data.match);
+    const subsequent = await send(leaving.path, { cookie: first, payload: {
+      type: "turn", intent: { actionId: "after-leave", expectedRevision: 1, action: "pass" }
+    } });
+    assert.equal(subsequent.data.code, "room-closed");
   } finally {
     delete process.env.SPOOKY_PILOT_DB_PATH;
     delete process.env.SPOOKY_PILOT_ORIGIN;
