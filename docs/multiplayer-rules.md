@@ -20,6 +20,8 @@ This is the rules contract for the first private multiplayer pilot. Use the exis
 
 Score each player by cash plus the total posted purchase value of the properties they own. Equal scores are a shared result. The pilot has no trades, auctions, mortgages, or elimination. Keep its results separate from solo global statistics.
 
+After a match finishes, either seat can copy the same recap text or download it as a PNG. It includes the winner or tie, seat display names, final scores, cash, properties owned, and rounds played. Recaps omit the room ID, invitation, and seat credentials. The export happens in the browser. For playtest measurement, tally finished matches and how many had at least one successful export, counting each match once.
+
 Leaving or losing a connection never makes a property choice for the absent player. Reconnecting returns the same seat, committed board, and pending decision. After a failed turn request the page refreshes from the server before allowing another action. If the server had already accepted the turn, the recovered board reflects it.
 
 A seat is shown as away after 15 seconds without recorded activity. The remaining player can end an abandoned match after a further 60 seconds. The server checks the grace period when the player selects **End abandoned match**. A player can also confirm **Leave match** to close it immediately. In either case the game keeps the last committed board and records no score or winner.

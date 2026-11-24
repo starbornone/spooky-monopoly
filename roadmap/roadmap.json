@@ -1,7 +1,7 @@
 {
   "schema": "name -roadmap/v1",
   "file": "roadmap",
-  "updatedAt": "2026-11-24T22:16:08+11:00",
+  "updatedAt": "2026-11-24T22:21:22+11:00",
   "project": {
     "key": "spooky-monopoly",
     "title": "Spooky Monopoly",
@@ -38,12 +38,6 @@
       "title": "Add multiplayer games with shared turns",
       "group": "Multiplayer",
       "notes": "Phase 3 (Later). Multiplayer stage 2 (private release). Release the private two-player mode once the supervised pilot, authoritative turns, phone-sized board, and reconnect and leave flow are verified. Two separate browser profiles must join, reconnect, and finish the same match without duplicate turns or divergent results. Preserve standalone solo play and keep multiplayer results separate from solo aggregates. Measure invite-to-first-roll time, pilot completion, and the share of interrupted matches that resume to completion."
-    },
-    {
-      "id": "share-multiplayer-match-recap",
-      "title": "Export a recap of a finished multiplayer match",
-      "group": "Multiplayer",
-      "notes": "Phase 3 (Later). Multiplayer stage 2 (private release). Build on the planned solo result card and the finalised multiplayer result. Generate a downloadable image and copyable text with the outcome, seat names or initials, and verified highlights. Exclude room credentials and invite links. Both players should be able to export the same result. Measure recap exports among finished matches."
     },
     {
       "id": "expand-private-multiplayer-rooms",

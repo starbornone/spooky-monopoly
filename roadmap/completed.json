@@ -1,7 +1,7 @@
 {
   "schema": "name -roadmap/v1",
   "file": "completed",
-  "updatedAt": "2026-11-24T22:16:08+11:00",
+  "updatedAt": "2026-11-24T22:21:22+11:00",
   "project": {
     "key": "spooky-monopoly",
     "title": "Spooky Monopoly",
@@ -168,6 +168,13 @@
       "group": "Multiplayer",
       "notes": "Added persisted seat presence, a visible reconnect window, a confirmed leave action, and a server-checked abandonment action. HTTP tests verify legacy room migration, rejection within the grace period, seat recovery, and terminal state without an extra turn or score. Chromium drops the first accepted roll response, then verifies recovery from the committed snapshot and exercises the visible grace period and abandonment in a second room.",
       "completedAt": "2026-11-24T22:16:08+11:00"
+    },
+    {
+      "id": "share-multiplayer-match-recap",
+      "title": "Export a recap of a finished multiplayer match",
+      "group": "Multiplayer",
+      "notes": "Both seats can copy the same recap or download a PNG of the server-finalised result. The recap includes the outcome, seat names, scores, cash, property counts and rounds, with no room credentials or invite links. Browser coverage checks identical exports and verifies that abandoned matches have no recap. The pilot guide defines a manual export tally for human playtesting.",
+      "completedAt": "2026-11-24T22:21:22+11:00"
     }
   ]
 }

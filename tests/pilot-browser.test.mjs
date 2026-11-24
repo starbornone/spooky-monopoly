@@ -158,6 +158,44 @@ test("two browsers can join, resume a seat and finish the private pilot in sync"
     }
     const result = await host.getByText(/Scores:/).textContent();
     assert.equal(await guest.getByText(/Scores:/).textContent(), result);
+    const recaps = [];
+    const images = [];
+    for (const page of [host, guest]) {
+      assert.equal(await page.getByRole("textbox", { name: "Invite link" }).count(), 0);
+      await page.evaluate(useClipboard => {
+        Object.defineProperty(navigator, "clipboard", {
+          value: { writeText: async text => {
+            if (!useClipboard) throw new Error("Clipboard unavailable");
+            document.body.dataset.clipboard = text;
+          } }
+        });
+      }, page === host);
+      const share = page.getByRole("region", { name: "Share match recap" });
+      await share.getByRole("button", { name: "Copy recap text" }).click();
+      if (page === host) {
+        await share.getByText("Recap copied.").waitFor();
+        recaps.push(await page.locator("body").getAttribute("data-clipboard"));
+      } else {
+        recaps.push(await share.getByRole("textbox", { name: "Recap text" }).inputValue());
+      }
+      const download = page.waitForEvent("download");
+      await share.getByRole("button", { name: "Download recap image" }).click();
+      const image = await download;
+      assert.equal(image.suggestedFilename(), "spooky-monopoly-match.png");
+      const chunks = [];
+      for await (const chunk of await image.createReadStream()) chunks.push(chunk);
+      images.push(Buffer.concat(chunks));
+    }
+    const [, firstScore, secondScore] = result.match(/Scores: (\d+) to (\d+)$/);
+    assert.equal(recaps[0], recaps[1]);
+    assert.equal(recaps[0].split("\n")[1], result.split(" · Scores:")[0]);
+    assert.ok(recaps[0].includes(`P1 · Midnight: ${firstScore} points`));
+    assert.ok(recaps[0].includes(`P2 · Graveyard: ${secondScore} points`));
+    assert.match(recaps[0], /\b1 property\b/);
+    assert.match(recaps[0], /10 rounds played$/);
+    assert.doesNotMatch(recaps[0], /https?:\/\/|\b[a-f0-9]{48}\b/);
+    assert.equal(images[0].subarray(0, 8).toString("hex"), "89504e470d0a1a0a");
+    assert.deepEqual(images[0], images[1]);
     assert.ok(timings.length >= 20);
     const p95 = timings.sort((a, b) => a - b)[Math.ceil(timings.length * 0.95) - 1];
     assert.ok(p95 < 3000, `Expected p95 < 3000 ms, got ${Math.round(p95)} ms`);
@@ -185,6 +223,7 @@ test("two browsers can join, resume a seat and finish the private pilot in sync"
     await host.getByRole("button", { name: "End abandoned match" }).click();
     await host.getByText("The match was abandoned. No result was recorded.").waitFor();
     assert.equal(await host.getByText(/Scores:/).count(), 0);
+    assert.equal(await host.getByRole("region", { name: "Share match recap" }).count(), 0);
     assert.equal(await host.locator("main").getAttribute("data-revision"), "0");
   } finally {
     await browser?.close();

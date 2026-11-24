@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { boardSpaces } from "../game/data";
+import { formatPropertyCount, ResultExport } from "../game/ResultShare";
 import type { PilotMatch, PilotSeat } from "../server/multiplayer/pilotMatch";
 import { PilotBoard } from "./PilotBoard";
 import "./pilot.css";
@@ -171,6 +172,7 @@ export function PilotLobby() {
   });
 
   const match = room?.match;
+  const finished = match?.phase.kind === "finished" ? match.phase : null;
   const activeSeat = match && !room?.closed && match.phase.kind !== "finished"
     ? ((match.firstSeat + match.completedTurns) % 2) as PilotSeat
     : null;
@@ -197,7 +199,7 @@ export function PilotLobby() {
       {recovering && <p role="status">Connection interrupted. Waiting for the current room state.</p>}
       {!roomId && <button disabled={busy} onClick={create}>Create private room</button>}
       {roomId && seat === null && guestInvite && <button disabled={busy} onClick={join}>Join as guest</button>}
-      {shareLink && !room?.closed && (
+      {shareLink && !room?.closed && !finished && (
         <label className="pilot__invite">
           Invite link
           <input value={shareLink} readOnly onFocus={event => event.currentTarget.select()} />
@@ -260,11 +262,8 @@ export function PilotLobby() {
             </div>
           )}
           {match && <PilotBoard match={match} players={room.players} activeSeat={activeSeat} />}
-          {match?.phase.kind === "finished" && (
-            <p role="status">
-              {match.phase.winner === null ? "Tie" : `${room.players[match.phase.winner]?.name} won`}
-              {" · "}Scores: {match.phase.scores.join(" to ")}
-            </p>
+          {match && finished && !room.closed && (
+            <MatchResult match={match} result={finished} players={room.players} />
           )}
           {match && activeSeat !== null && (
             <section className="pilot__turn" ref={turnDock} aria-label="Turn controls">
@@ -289,5 +288,31 @@ export function PilotLobby() {
         </>
       )}
     </main>
+  );
+}
+
+function MatchResult({ match, result, players }: {
+  match: PilotMatch;
+  result: Extract<PilotMatch["phase"], { kind: "finished" }>;
+  players: RoomView["players"];
+}) {
+  const seats = [0, 1] as const;
+  const labels = seats.map(seat => `P${seat + 1} · ${players[seat]?.name ?? "Player"}`);
+  const outcome = result.winner === null ? "Tie" : `${labels[result.winner]} won`;
+  const highlights = seats.map(seat => {
+    const properties = Object.values(match.owners).filter(owner => owner === seat).length;
+    return `${labels[seat]}: ${result.scores[seat]} points · $${match.players[seat].cash} cash · ${formatPropertyCount(properties)}`;
+  });
+  const rounds = `${match.completedTurns / 2} rounds played`;
+
+  return (
+    <section aria-label="Match result">
+      <p role="status">{outcome}{" · "}Scores: {result.scores.join(" to ")}</p>
+      <ResultExport title={outcome} kind="recap" filename="spooky-monopoly-match.png"
+        summary={["Spooky Monopoly", outcome, ...highlights, rounds].join("\n")}
+        imageRows={[...highlights, rounds].map(value => ({
+          value, font: "24px sans-serif", color: "#f2ddd1", spacing: 38
+        }))} />
+    </section>
   );
 }
