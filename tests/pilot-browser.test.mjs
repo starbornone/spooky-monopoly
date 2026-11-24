@@ -64,17 +64,30 @@ function roomRelay(socketPath, dropReply) {
   };
 }
 
-test("two browsers can join, resume a seat and finish the private pilot in sync", { timeout: 120000 }, async () => {
+test("two browsers can join, resume a seat and finish the private pilot in sync", { timeout: 120000 }, async t => {
   const directory = await mkdtemp(join(tmpdir(), "spooky-pilot-ui-"));
   const socketPath = process.platform === "win32"
     ? `\\\\.\\pipe\\spooky-pilot-ui-${randomUUID()}`
     : join(directory, "server.sock");
-  process.env.SPOOKY_PILOT_DB_PATH = join(directory, "pilot.sqlite");
+  const databasePath = join(directory, "pilot.sqlite");
+  process.env.SPOOKY_PILOT_DB_PATH = databasePath;
   process.env.SPOOKY_PILOT_ORIGIN = origin;
   const app = next({ dev: false, hostname: "localhost", port: 3000 });
   const server = createServer(app.getRequestHandler());
   let browser;
-  let droppedFirstTurn = false;
+  let firstRollAt;
+
+  function setGuestAge(roomUrl, seconds) {
+    const roomId = new URL(roomUrl).searchParams.get("room");
+    const database = new DatabaseSync(databasePath);
+    try {
+      const { changes } = database.prepare("UPDATE pilot_rooms SET guest_seen_at = ? WHERE id = ?")
+        .run(Date.now() - seconds * 1000, roomId);
+      assert.equal(changes, 1);
+    } finally {
+      database.close();
+    }
+  }
 
   try {
     await app.prepare();
@@ -83,18 +96,24 @@ test("two browsers can join, resume a seat and finish the private pilot in sync"
     await listening;
     browser = await chromium.launch();
     const host = await browser.newPage({ viewport: { width: 320, height: 700 } });
-    const guest = await browser.newPage({ viewport: { width: 320, height: 700 } });
+    const guestProfile = await browser.newContext({ viewport: { width: 320, height: 700 } });
+    let guest = await guestProfile.newPage();
     const forward = roomRelay(socketPath, (request, response) => {
-      if (droppedFirstTurn || response.status !== 200 || request.method() !== "POST" ||
-        request.postDataJSON()?.type !== "turn") return false;
-      droppedFirstTurn = true;
+      if (firstRollAt !== undefined || response.status !== 200 || request.method() !== "POST" ||
+        request.postDataJSON()?.intent?.action !== "roll") return false;
+      firstRollAt = performance.now();
       return true;
     });
     await Promise.all([attach(host, forward), attach(guest, forward)]);
     await host.goto(origin);
     await host.getByRole("link", { name: "Play with a friend" }).click();
-    await host.getByRole("button", { name: "Create private room" }).click();
+    const [creation] = await Promise.all([
+      host.waitForResponse(response => response.url() === origin + "/api/multiplayer" && response.request().method() === "POST"),
+      host.getByRole("button", { name: "Create private room" }).click(),
+    ]);
+    assert.equal(creation.status(), 201);
     const invite = await host.getByRole("textbox", { name: "Invite link" }).inputValue();
+    const inviteAt = performance.now();
     assert.match(invite, /#invite=[0-9a-f]{48}$/);
     await guest.goto(invite);
     await guest.getByRole("button", { name: "Join as guest" }).click();
@@ -131,7 +150,7 @@ test("two browsers can join, resume a seat and finish the private pilot in sync"
       timings.push(performance.now() - started);
       await active.locator(`main[data-revision="${revision}"]`).waitFor();
       if (revision === 1) {
-        assert.equal(droppedFirstTurn, true);
+        assert.ok(firstRollAt >= inviteAt);
         await active.waitForFunction(() => document.activeElement?.textContent === "Buy");
         const board = active.getByRole("region", { name: "Shared board" });
         const square = board.locator(".pilot-board__tile--active");
@@ -145,9 +164,19 @@ test("two browsers can join, resume a seat and finish the private pilot in sync"
         assert.equal(await active.locator("main").getAttribute("data-revision"), "1");
         await active.getByRole("button", { name: "Buy", exact: true }).waitFor();
         assert.equal(await host.getByText(/Last roll:/).textContent(), await guest.getByText(/Last roll:/).textContent());
-        await guest.reload();
+        const guestRoom = guest.url();
+        await guest.close();
+        setGuestAge(guestRoom, 20);
+        const reconnectWindow = host.getByText(/Graveyard has \d+ seconds to reconnect/);
+        await reconnectWindow.waitFor();
+
+        guest = await guestProfile.newPage();
+        await attach(guest, forward);
+        await guest.goto(guestRoom);
         await guest.getByText("Graveyard (you)").waitFor();
         await guest.locator('main[data-revision="1"]').waitFor();
+        await reconnectWindow.waitFor({ state: "hidden" });
+        assert.equal(await host.getByText(/Last roll:/).textContent(), await guest.getByText(/Last roll:/).textContent());
         assert.equal(await guest.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true);
       }
       if (revision === 2) {
@@ -161,6 +190,20 @@ test("two browsers can join, resume a seat and finish the private pilot in sync"
     }
     const result = await host.getByText(/Scores:/).textContent();
     assert.equal(await guest.getByText(/Scores:/).textContent(), result);
+    const finishedRoomId = new URL(host.url()).searchParams.get("room");
+    const finishedDatabase = new DatabaseSync(databasePath, { readOnly: true });
+    try {
+      const stored = finishedDatabase.prepare("SELECT match_json FROM pilot_rooms WHERE id = ?").get(finishedRoomId);
+      const match = JSON.parse(stored.match_json);
+      assert.equal(match.phase.kind, "finished");
+      assert.equal(match.completedTurns, 20);
+      assert.equal(match.revision, timings.length);
+      const revisions = finishedDatabase.prepare("SELECT receipt_json FROM pilot_receipts WHERE room_id = ?")
+        .all(finishedRoomId).map(row => JSON.parse(row.receipt_json).match.revision).sort((a, b) => a - b);
+      assert.deepEqual(revisions, Array.from({ length: match.revision }, (_, index) => index + 1));
+    } finally {
+      finishedDatabase.close();
+    }
     const recaps = [];
     const images = [];
     for (const page of [host, guest]) {
@@ -202,6 +245,8 @@ test("two browsers can join, resume a seat and finish the private pilot in sync"
     assert.ok(timings.length >= 20);
     const p95 = timings.sort((a, b) => a - b)[Math.ceil(timings.length * 0.95) - 1];
     assert.ok(p95 < 3000, `Expected p95 < 3000 ms, got ${Math.round(p95)} ms`);
+    t.diagnostic(`Local automation: invite to first accepted roll ${Math.round(firstRollAt - inviteAt)} ms, ` +
+      `turn observation p95 ${Math.round(p95)} ms, full match finished after guest reconnect.`);
 
     await host.goto(origin + "/multiplayer");
     await host.getByRole("button", { name: "Create private room" }).click();
@@ -212,17 +257,10 @@ test("two browsers can join, resume a seat and finish the private pilot in sync"
     await host.locator('main[data-revision="0"]').waitFor();
     await guest.close();
 
-    const roomId = new URL(host.url()).searchParams.get("room");
-    const database = new DatabaseSync(process.env.SPOOKY_PILOT_DB_PATH);
-    try {
-      const age = database.prepare("UPDATE pilot_rooms SET guest_seen_at = ? WHERE id = ?");
-      age.run(Date.now() - 20_000, roomId);
-      await host.getByText(/seconds to reconnect/).waitFor();
-      assert.equal(await host.getByRole("button", { name: "End abandoned match" }).count(), 0);
-      age.run(Date.now() - 80_000, roomId);
-    } finally {
-      database.close();
-    }
+    setGuestAge(host.url(), 20);
+    await host.getByText(/seconds to reconnect/).waitFor();
+    assert.equal(await host.getByRole("button", { name: "End abandoned match" }).count(), 0);
+    setGuestAge(host.url(), 80);
     await host.getByRole("button", { name: "End abandoned match" }).click();
     await host.getByText("The match was abandoned. No result was recorded.").waitFor();
     assert.equal(await host.getByText(/Scores:/).count(), 0);

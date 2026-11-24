@@ -72,7 +72,9 @@ Start the app and choose **Play with a friend**. Create a room, then copy its in
 
 The pilot runs on one host with a local database file. Keep the instance restricted to your testers. The pilot is disabled when its settings are absent and solo play stays available.
 
-The room URL carries the room ID. The invite is in the fragment until the guest joins, and the server accepts it only once. The browser sends its seat credential as a room-scoped HTTP-only cookie. The database stores credential hashes. The page polls every 1.5 seconds and refreshes when it becomes visible again. A local Chromium test refreshes a guest seat after a roll, finishes the match across two profiles, and checks that the 95th percentile time for observing a turn is below three seconds.
+The room URL carries the room ID. The invite is in the fragment until the guest joins, and the server accepts it only once. The browser sends its seat credential as a room-scoped HTTP-only cookie. The database stores credential hashes. The page polls every 1.5 seconds and refreshes when it becomes visible again. A local Chromium test closes the guest tab after a roll, checks the host's reconnect notice, then reopens the room in the same guest profile and finishes the match. It checks for one receipt per committed action, reports invite-to-first-roll time, and checks that the 95th percentile time for observing a turn is below three seconds.
+
+For supervised browser sessions, time each room from when the invite link is ready to share until the first accepted roll. Tally finished matches out of all started matches. Among matches that showed a reconnect window after starting, tally how many finished in the same room after the away player returned. Count each room once for each tally.
 
 The board uses numbered seat markers to show where both players are and who owns each property. Select a square to inspect its full name, price, and rent. Closing those details leaves any pending buy or pass decision intact. The turn controls stay at the bottom on small screens.
 

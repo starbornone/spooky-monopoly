@@ -1,7 +1,7 @@
 {
   "schema": "name -roadmap/v1",
   "file": "roadmap",
-  "updatedAt": "2026-11-25T01:03:09+11:00",
+  "updatedAt": "2026-11-25T01:08:34+11:00",
   "project": {
     "key": "spooky-monopoly",
     "title": "Spooky Monopoly",
@@ -31,7 +31,7 @@
       "id": "add-multiplayer",
       "title": "Add multiplayer games with shared turns",
       "group": "Multiplayer",
-      "notes": "Phase 3 (Later). Multiplayer stage 2 (private release). Release the private two-player mode once the supervised pilot, authoritative turns, phone-sized board, and reconnect and leave flow are verified. Two separate browser profiles must join, reconnect, and finish the same match without duplicate turns or divergent results. Preserve standalone solo play and keep multiplayer results separate from solo aggregates. Measure invite-to-first-roll time, pilot completion, and the share of interrupted matches that resume to completion."
+      "notes": "Phase 3 (Later). Multiplayer stage 2 (private release). Release the private two-player mode once the supervised pilot, authoritative turns, phone-sized board, and reconnect and leave flow are verified. Two Chromium profiles joined at 320 pixels, recovered the guest seat after the host saw the reconnect window, and finished with identical scores and one persisted receipt per action. In that local automated run, the first accepted roll came 2.65 seconds after the invite was available, and the 95th percentile observation time was 2.064 seconds. The pilot guide defines invite-to-first-roll, completion, and interruption recovery measurements for supervised sessions. Collect those measurements during human playtesting before release. Preserve standalone solo play and keep multiplayer results separate from solo aggregates."
     },
     {
       "id": "expand-private-multiplayer-rooms",

@@ -46,6 +46,7 @@ const messages: Record<string, string> = {
 };
 
 export function PilotLobby() {
+  const [lobbyReady, setLobbyReady] = useState(false);
   const [roomId, setRoomId] = useState("");
   const [guestInvite, setGuestInvite] = useState("");
   const [shareLink, setShareLink] = useState("");
@@ -71,6 +72,7 @@ export function PilotLobby() {
     const id = url.searchParams.get("room") ?? "";
     if (/^[0-9a-f]{32}$/.test(id)) setRoomId(id);
     setGuestInvite(new URLSearchParams(url.hash.slice(1)).get("invite") ?? "");
+    setLobbyReady(true);
   }, []);
 
   const updateRoom = (reply: RoomReply) => {
@@ -197,7 +199,7 @@ export function PilotLobby() {
       <h1>Play with a friend</h1>
       {error && <p role="alert">{error}</p>}
       {recovering && <p role="status">Connection interrupted. Waiting for the current room state.</p>}
-      {!roomId && <button disabled={busy} onClick={create}>Create private room</button>}
+      {!roomId && <button disabled={!lobbyReady || busy} onClick={create}>Create private room</button>}
       {roomId && seat === null && guestInvite && <button disabled={busy} onClick={join}>Join as guest</button>}
       {shareLink && !room?.closed && !finished && (
         <label className="pilot__invite">
