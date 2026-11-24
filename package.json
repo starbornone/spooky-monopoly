@@ -12,7 +12,7 @@
     "typecheck": "next typegen && tsc --noEmit",
     "test:routes": "node --test tests/routes.test.mjs",
     "test:browser": "node --test tests/game-browser.test.mjs",
-    "test": "node --experimental-strip-types --test tests/global-stats.test.mjs tests/property-actions.test.mjs tests/token-unlocks.test.mjs"
+    "test": "node --experimental-strip-types --test tests/global-stats.test.mjs tests/property-actions.test.mjs tests/solo-rules.test.mjs tests/token-unlocks.test.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.119.2",
