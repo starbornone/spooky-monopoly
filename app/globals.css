@@ -1,3 +1,21 @@
+:root {
+  color-scheme: dark;
+  --color-charcoal: rgba(33, 22, 19, 1);
+  --color-wood: rgba(49, 33, 28, 1);
+  --color-burgundy: rgba(65, 34, 35, 1);
+  --color-moss: rgba(37, 48, 38, 1);
+  --color-moss-border: rgba(105, 124, 92, 1);
+  --color-border: rgba(102, 69, 56, 1);
+  --color-text: rgba(255, 236, 214, 1);
+  --color-text-muted: rgba(222, 192, 168, 1);
+  --color-copper: rgba(228, 151, 105, 1);
+  --color-copper-light: rgba(248, 180, 133, 1);
+  --color-amber: rgba(248, 204, 137, 1);
+  --color-overlay: rgba(23, 14, 13, 0.77);
+  --color-shadow: rgba(17, 9, 8, 0.55);
+  --font-heading: Georgia, "Times New Roman", serif;
+}
+
 /* ===== CSS RESET ===== */
 *,
 *::before,
@@ -20,11 +38,11 @@ html {
 
 /* ===== BODY ===== */
 body {
-  font-family: "Atkinson Hyperlegible Mono", "Courier New", monospace;
+  font-family: system-ui, sans-serif;
   font-size: 1rem;
   line-height: 1.6;
-  color: #000;
-  background-color: #fff;
+  color: var(--color-text);
+  background-color: var(--color-charcoal);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
@@ -40,7 +58,8 @@ h6 {
   font-weight: 600;
   line-height: 1.2;
   margin-bottom: 1rem;
-  color: #000;
+  color: var(--color-text);
+  font-family: var(--font-heading);
 }
 
 h1 {
@@ -64,24 +83,24 @@ h6 {
 
 p {
   margin-bottom: 1rem;
-  color: #666;
+  color: var(--color-text-muted);
 }
 
 /* ===== LINKS ===== */
 a {
-  color: #007acc;
+  color: var(--color-copper-light);
   text-decoration: none;
   transition: color 0.2s ease;
 }
 
 a:hover {
-  color: #000;
+  color: var(--color-amber);
   text-decoration: underline;
 }
 
 a:focus {
-  outline: 2px solid #007acc;
-  outline-offset: 2px;
+  outline: 0.125rem solid var(--color-amber);
+  outline-offset: 0.125rem;
 }
 
 /* ===== LISTS ===== */
@@ -111,6 +130,14 @@ object {
 
 img {
   border-style: none;
+}
+
+.game-artwork {
+  border-radius: 20%;
+  display: inline-block;
+  height: 1.5rem;
+  width: 1.5rem;
+  vertical-align: middle;
 }
 
 svg {
@@ -177,12 +204,12 @@ th,
 td {
   text-align: left;
   padding: 0.5rem;
-  border-bottom: 1px solid #e9ecef;
+  border-bottom: 0.0625rem solid var(--color-border);
 }
 
 th {
   font-weight: 600;
-  background-color: #f8f9fa;
+  background-color: var(--color-wood);
 }
 
 /* ===== CODE ===== */
@@ -193,13 +220,13 @@ pre {
 }
 
 code {
-  background-color: #f8f9fa;
+  background-color: var(--color-wood);
   padding: 0.25rem 0.5rem;
   border-radius: 0.25rem;
 }
 
 pre {
-  background-color: #f8f9fa;
+  background-color: var(--color-wood);
   padding: 1rem;
   border-radius: 0.375rem;
   overflow-x: auto;
@@ -244,8 +271,8 @@ pre code {
 
 /* Focus styles for keyboard navigation */
 :focus-visible {
-  outline: 2px solid #007acc;
-  outline-offset: 2px;
+  outline: 0.125rem solid var(--color-amber);
+  outline-offset: 0.125rem;
 }
 
 /* ===== PRINT STYLES ===== */
@@ -302,4 +329,19 @@ pre code {
   h3 {
     page-break-after: avoid;
   }
+}
+
+:root {
+  --color-floral-white: var(--color-text);
+  --color-timberwolf: var(--color-text-muted);
+  --color-black-olive: var(--color-moss-border);
+  --color-eerie-black: var(--color-wood);
+  --color-rich-black: var(--color-charcoal);
+  --color-jasper: var(--color-copper);
+  --color-flame: var(--color-copper-light);
+  --color-english-violet: var(--color-wood);
+  --color-dark-purple: var(--color-burgundy);
+  --color-raisin-black: var(--color-wood);
+  --color-hunyadi-yellow: var(--color-amber);
+  --color-prussian-blue: var(--color-moss);
 }
