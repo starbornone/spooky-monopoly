@@ -1,7 +1,7 @@
 {
   "schema": "name -roadmap/v1",
   "file": "completed",
-  "updatedAt": "2026-11-24T22:21:22+11:00",
+  "updatedAt": "2026-11-24T23:53:35+11:00",
   "project": {
     "key": "spooky-monopoly",
     "title": "Spooky Monopoly",
@@ -175,6 +175,20 @@
       "group": "Multiplayer",
       "notes": "Both seats can copy the same recap or download a PNG of the server-finalised result. The recap includes the outcome, seat names, scores, cash, property counts and rounds, with no room credentials or invite links. Browser coverage checks identical exports and verifies that abandoned matches have no recap. The pilot guide defines a manual export tally for human playtesting.",
       "completedAt": "2026-11-24T22:21:22+11:00"
+    },
+    {
+      "id": "hide-faction-unlock-spoilers",
+      "title": "Hide unlock requirements in the character picker",
+      "group": "Solo gameplay",
+      "notes": "Locked factions show their name and locked status. Their gameplay rules appear when the faction is available to choose. Earning a faction still shows a notice at the end of the game.",
+      "completedAt": "2026-11-24T23:53:35+11:00"
+    },
+    {
+      "id": "illustrate-solo-character-tokens",
+      "title": "Replace solo character emoji with illustrated portraits",
+      "group": "Solo gameplay",
+      "notes": "The character picker and solo board use the same nine illustrated Human, Vampire and Elf portraits, keyed by the existing token IDs.",
+      "completedAt": "2026-11-24T23:53:35+11:00"
     }
   ]
 }

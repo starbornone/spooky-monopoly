@@ -4,8 +4,8 @@
 
 ## What you can do
 
-- Choose a token, roll the dice, and decide what to do when you land on a property. The game tracks your money and properties across 20 turns and presents a summary at the end.
-- Unlock additional token groups through play. Unlocks are stored in the current browser and carry across games on the same origin.
+- Choose a character portrait to mark your position on the solo board. Roll the dice and decide what to do when you land on a property. After 20 turns, the game summarises your cash and properties.
+- Unlock additional token groups through play. The picker shows each faction's rules once you can select it. Unlocks are stored in the current browser and carry across games on the same origin.
 - Resume a solo game in the same browser, or share a seeded challenge after playing.
 - View aggregated results across games when the app is connected to its Supabase statistics table.
 - Start at `/` or follow an existing Weird Web October link to `/2025/spooky`.

@@ -51,7 +51,7 @@ export const TokenPicker = ({ onChoose, checkingSave, savedGame, invitation, cha
     }
     if (isLoaded && unlockedTokens.length > 0) {
       const firstUnlockedIndex = PLAYER_TOKENS.findIndex(
-        token => unlockedTokens[0].icon === token.icon
+        token => unlockedTokens[0].id === token.id
       );
       if (firstUnlockedIndex !== -1 && buttonRefs.current[firstUnlockedIndex]) {
         buttonRefs.current[firstUnlockedIndex]?.focus();
@@ -73,7 +73,7 @@ export const TokenPicker = ({ onChoose, checkingSave, savedGame, invitation, cha
       if (isUnlocked) {
         e.preventDefault();
         const token = PLAYER_TOKENS[tokenIndex];
-        setSelected(token.icon);
+        setSelected(token.id);
         setTimeout(() => onChoose(token, seeded), 180);
       }
       return;
@@ -233,42 +233,32 @@ export const TokenPicker = ({ onChoose, checkingSave, savedGame, invitation, cha
                 ref={el => {
                   buttonRefs.current[index] = el;
                 }}
-                className={`token-picker__option ${selected === token.icon ? "token-picker__option--selected" : ""} ${isLocked ? "token-picker__option--locked" : ""}`}
+                className={`token-picker__option ${selected === token.id ? "token-picker__option--selected" : ""} ${isLocked ? "token-picker__option--locked" : ""}`}
                 onClick={() => {
                   if (isLocked) return;
-                  setSelected(token.icon);
+                  setSelected(token.id);
                   setTimeout(() => onChoose(token, seeded), 180);
                 }}
                 onKeyDown={e => handleKeyDown(e, index)}
                 aria-label={`${isLocked ? "Locked " : "Choose "}${faction.name} token ${index % 3 + 1}`}
-                aria-describedby={`token-rules-${token.group}`}
+                aria-describedby={isUnlocked ? `token-rules-${token.group}` : undefined}
                 disabled={isLocked}
               >
-                <span className="token-picker__emoji" aria-hidden="true">{token.icon}</span>
+                <img className="token-picker__portrait" src={`/tokens/${token.id}.webp`} alt="" width={72} height={72} />
                 <span>{faction.name}</span>
-                {isLocked ? (
-                  <span className="token-picker__lock-info">🔒 Locked</span>
-                ) : (
-                  <span className="token-picker__abilities">
-                    {token.canBuyProperties
-                      ? !token.canResistBuyingProperties
-                        ? "🫰🤑🫰"
-                        : "💰🏠"
-                      : "🚫💰🏠"}
-                  </span>
-                )}
+                {isLocked && <span className="token-picker__lock-info">Locked</span>}
               </button>
             );
           })}
         </div>
 
-        {Object.entries(factionDetails).map(([group, faction]) => (
-          <p id={`token-rules-${group}`} className="token-picker__hint" key={group}>
-            <strong>{faction.name}</strong> {faction.rule}
-            {group !== "humans" && !isTokenUnlocked(group as "vampires" | "elves") &&
-              "unlock" in faction && ` ${faction.unlock}`}
-          </p>
-        ))}
+        {Object.entries(factionDetails)
+          .filter(([group]) => unlockedTokens.some(token => token.group === group))
+          .map(([group, faction]) => (
+            <p id={`token-rules-${group}`} className="token-picker__hint" key={group}>
+              <strong>{faction.name}</strong> {faction.rule}
+            </p>
+          ))}
       </div>
     </div>
   );

@@ -169,7 +169,10 @@
 }
 
 .game-board__player {
-  font-size: 2rem;
+  border: 2px solid var(--color-floral-white);
+  border-radius: 50%;
+  height: 2rem;
+  width: 2rem;
 }
 
 /* token movement bounce */

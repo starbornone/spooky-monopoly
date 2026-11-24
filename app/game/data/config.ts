@@ -3,14 +3,12 @@ export type PlayerToken = {
   canBuyProperties: boolean;
   canResistBuyingProperties: boolean;
   group: "vampires" | "humans" | "elves";
-  icon: string;
   startingMoney: number;
 };
 
 export const PLAYER_TOKENS: PlayerToken[] = [
   {
     id: "vampire-woman",
-    icon: "🧛‍♀️",
     canBuyProperties: true,
     canResistBuyingProperties: false,
     group: "vampires",
@@ -18,7 +16,6 @@ export const PLAYER_TOKENS: PlayerToken[] = [
   },
   {
     id: "vampire-man",
-    icon: "🧛‍♂️",
     canBuyProperties: true,
     canResistBuyingProperties: false,
     group: "vampires",
@@ -26,7 +23,6 @@ export const PLAYER_TOKENS: PlayerToken[] = [
   },
   {
     id: "vampire",
-    icon: "🧛",
     canBuyProperties: true,
     canResistBuyingProperties: false,
     group: "vampires",
@@ -34,7 +30,6 @@ export const PLAYER_TOKENS: PlayerToken[] = [
   },
   {
     id: "human-woman",
-    icon: "👩‍💼",
     canBuyProperties: true,
     canResistBuyingProperties: true,
     group: "humans",
@@ -42,7 +37,6 @@ export const PLAYER_TOKENS: PlayerToken[] = [
   },
   {
     id: "human-man",
-    icon: "👨‍💼",
     canBuyProperties: true,
     canResistBuyingProperties: true,
     group: "humans",
@@ -50,7 +44,6 @@ export const PLAYER_TOKENS: PlayerToken[] = [
   },
   {
     id: "human",
-    icon: "🧑‍💼",
     canBuyProperties: true,
     canResistBuyingProperties: true,
     group: "humans",
@@ -58,7 +51,6 @@ export const PLAYER_TOKENS: PlayerToken[] = [
   },
   {
     id: "elf-woman",
-    icon: "🧝‍♀️",
     canBuyProperties: false,
     canResistBuyingProperties: true,
     group: "elves",
@@ -66,7 +58,6 @@ export const PLAYER_TOKENS: PlayerToken[] = [
   },
   {
     id: "elf-man",
-    icon: "🧝‍♂️",
     canBuyProperties: false,
     canResistBuyingProperties: true,
     group: "elves",
@@ -74,7 +65,6 @@ export const PLAYER_TOKENS: PlayerToken[] = [
   },
   {
     id: "elf",
-    icon: "🧝",
     canBuyProperties: false,
     canResistBuyingProperties: true,
     group: "elves",

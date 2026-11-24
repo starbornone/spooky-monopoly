@@ -116,6 +116,9 @@ async function serveGame(page) {
     if (url.pathname.startsWith("/_next/static/")) {
       return route.fulfill({ path: ".next/" + url.pathname.slice("/_next/".length) });
     }
+    if (/^\/tokens\/[a-z-]+\.webp$/.test(url.pathname)) {
+      return route.fulfill({ path: `public${url.pathname}`, contentType: "image/webp" });
+    }
     if (url.pathname === "/api/submit") {
       return route.fulfill({ status: 503, json: { success: false } });
     }
@@ -147,9 +150,25 @@ test("complete and restart a fixed-roll solo game on narrow and landscape screen
         await page.goto(origin);
 
         const buyProperty = viewport.width === 390;
-        await page.getByRole("button", { name: "Choose Human token 1" }).click();
+        const humanToken = page.getByRole("button", { name: "Choose Human token 1" });
+        await humanToken.waitFor();
+        assert.ok(await page.getByRole("button", { name: "Locked Elf token 1" }).isDisabled());
+        assert.ok(await page.getByRole("button", { name: "Locked Vampire token 1" }).isDisabled());
+        assert.equal(await page.locator("#token-rules-elves, #token-rules-vampires").count(), 0);
+        const portraits = await page.locator(".token-picker__portrait").evaluateAll(images =>
+          Promise.all(images.map(async image => {
+            await image.decode();
+            return image.getAttribute("src");
+          }))
+        );
+        assert.equal(new Set(portraits).size, 9);
+        const chosenPortrait = await humanToken.locator("img").getAttribute("src");
+        await humanToken.click();
         const roll = page.getByRole("button", { name: /Roll Dice/ });
         await roll.waitFor();
+        const boardPortrait = page.locator(".game-board__player");
+        assert.equal(await boardPortrait.getAttribute("src"), chosenPortrait);
+        await boardPortrait.evaluate(image => image.decode());
         const contrast = await roll.evaluate(button => {
           const style = getComputedStyle(button);
           const luminance = color => color.match(/\d+/g).slice(0, 3)
@@ -234,6 +253,8 @@ test("complete and restart a fixed-roll solo game on narrow and landscape screen
         await page.getByRole("button", { name: "Choose Human token 1" }).waitFor();
         if (!buyProperty) {
           await page.getByRole("button", { name: "Choose Elf token 1" }).waitFor();
+          assert.equal(await page.locator("#token-rules-elves").isVisible(), true);
+          assert.equal(await page.locator("#token-rules-vampires").count(), 0);
           await page.reload();
           await page.getByRole("button", { name: "Choose Elf token 1" }).waitFor();
         }

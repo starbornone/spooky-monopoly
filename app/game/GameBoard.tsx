@@ -252,12 +252,14 @@ export default function GameBoard() {
                       : "💰"}
                 </div>
               )}
-              {playerPosition === index && (
-                <div
+              {playerToken && playerPosition === index && (
+                <img
                   className={`game-board__player ${animatePlayer ? "game-board__player--move" : ""}`}
-                >
-                  {playerToken?.icon ?? ""}
-                </div>
+                  src={`/tokens/${playerToken.id}.webp`}
+                  alt=""
+                  width={32}
+                  height={32}
+                />
               )}
             </div>
           ))}

@@ -51,14 +51,12 @@ export interface PurchaseBehavior {
 export const factionDetails = {
   vampires: {
     name: "Vampire",
-    rule: "Buy every property you can afford.",
-    unlock: "Finish a game after buying every unowned property you landed on that you could afford."
+    rule: "Buy every property you can afford."
   },
   humans: { name: "Human", rule: "Buy or pass when you land on a property." },
   elves: {
     name: "Elf",
-    rule: "Play without buying properties.",
-    unlock: "Land on an unowned property and finish the game without buying anything."
+    rule: "Play without buying properties."
   }
 } as const;
 
