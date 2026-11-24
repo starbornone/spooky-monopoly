@@ -78,7 +78,13 @@ test("complete and restart a fixed-roll solo game on narrow and landscape screen
         const errors = [];
         page.on("pageerror", error => errors.push(error.message));
         await serveGame(page);
-        await page.addInitScript(() => { Math.random = () => 0; });
+        await page.addInitScript(() => {
+          Math.random = () => 0;
+          Object.defineProperty(navigator, "clipboard", {
+            configurable: true,
+            value: { writeText: async text => { window.copiedResult = text; } }
+          });
+        });
         await page.goto(origin);
 
         const buyProperty = viewport.width === 390;
@@ -130,6 +136,26 @@ test("complete and restart a fixed-roll solo game on narrow and landscape screen
         if (!buyProperty) await page.getByText(/Elf tokens unlocked/).waitFor();
         const finalBalance = await page.locator(".end-game__stat-value").first().innerText();
         assert.equal(finalBalance, buyProperty ? "$1249" : "$1300");
+        if (buyProperty) {
+          const copy = page.getByRole("button", { name: "Copy result text" });
+          await copy.click();
+          await page.getByText("Result copied.", { exact: true }).waitFor();
+          assert.match(await page.evaluate(() => window.copiedResult),
+            /Human\n\$1249 cash · 1 property · \$60 total property value/);
+          await page.evaluate(() => {
+            Object.defineProperty(navigator, "clipboard", { configurable: true, value: undefined });
+          });
+          await copy.click();
+          assert.match(await page.getByRole("textbox", { name: "Result text" }).inputValue(), /Spooky Monopoly/);
+          const downloaded = page.waitForEvent("download");
+          await page.getByRole("button", { name: "Download result image" }).click();
+          const image = await downloaded;
+          assert.equal(image.suggestedFilename(), "spooky-monopoly-result.png");
+          const stream = await image.createReadStream();
+          const chunks = [];
+          for await (const chunk of stream) chunks.push(chunk);
+          assert.deepEqual([...Buffer.concat(chunks).subarray(0, 8)], [137, 80, 78, 71, 13, 10, 26, 10]);
+        }
         await page.getByRole("button", { name: /Restart the Haunting Cycle/ }).click();
         await page.getByRole("button", { name: "Choose Human token 1" }).waitFor();
         if (!buyProperty) {

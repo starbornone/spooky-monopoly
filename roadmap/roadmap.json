@@ -28,12 +28,6 @@
       "notes": "Phase 2 (Next). Validate result fields at runtime in the submit handler. Introduce a backward-compatible submission ID and a database uniqueness rule once the live schema is confirmed. Check HTTP responses in EndGame.tsx and refresh GlobalStats.tsx after a confirmed submission. Verify aggregates across response pages and confirm that a failed or retried submission leaves local play available."
     },
     {
-      "id": "share-result-card",
-      "title": "Export a shareable card from a completed game",
-      "group": "Sharing",
-      "notes": "Phase 2 (Next). Use the end-game title, faction, achievements, cash, and property totals to generate a downloadable image and copyable text for Discord or group chats. Verify the export works without Supabase or a connected account."
-    },
-    {
       "id": "add-seeded-challenges",
       "title": "Share repeatable challenges using a seeded run",
       "group": "Replay",

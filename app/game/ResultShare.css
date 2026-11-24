@@ -1,0 +1,31 @@
+.result-share {
+  width: 100%;
+}
+
+.result-share__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.result-share button {
+  min-height: 2.75rem;
+  padding: 0.5rem 1rem;
+  border: 0;
+  background: var(--color-jasper);
+  color: var(--color-rich-black);
+  font-weight: 600;
+}
+
+.result-share p {
+  margin-block: 0.5rem;
+  color: var(--color-floral-white);
+}
+
+.result-share textarea {
+  width: 100%;
+  margin-block-start: 0.5rem;
+  padding: 0.625rem;
+  background: var(--color-dark-purple);
+  color: var(--color-floral-white);
+}

@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 
+import { ResultShare } from "./ResultShare";
 import { BoardSpace, PlayerToken } from "./data";
 import {
   getMessage,
@@ -174,6 +175,14 @@ export const EndGame = ({
         </p>
       </div>
 
+      <ResultShare
+        title={playerTitle}
+        faction={factionDetails[playerToken?.group ?? "humans"].name}
+        money={money}
+        properties={ownedProperties.length}
+        propertyValue={totalPropertyValue}
+        achievements={achievements.map(achievement => achievement.title)}
+      />
       <button className="end-game__button" onClick={onRestart}>
         👻 Restart the Haunting Cycle 👻
       </button>

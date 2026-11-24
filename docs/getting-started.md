@@ -15,6 +15,10 @@ Open [http://localhost:3000](http://localhost:3000) or the address printed by th
 
 The game saves your progress in this browser after each completed action. If you reload during a property choice, select **Resume** to return to that choice with the same balance. **Start new** discards the saved game and opens token selection. Use the same browser profile and site address to resume. If storage is unavailable or the save cannot be read, you can still start a new game.
 
+## Share a result
+
+At the end of a game, use **Copy result text** for chat or **Download result image** to save a PNG. The result includes your title, faction, cash, property count and value, and achievements. Both options work with shared statistics disabled. If the browser blocks clipboard access, the game displays text you can select and copy.
+
 ## Enable shared statistics
 
 For shared results, make a copy of [`.env.example`](../.env.example) named `.env.local` in the repository root and fill in both values.

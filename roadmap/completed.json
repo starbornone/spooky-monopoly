@@ -112,6 +112,13 @@
       "group": "Gameplay",
       "notes": "Added versioned browser-local saves with explicit token and board identifiers. Chromium verifies reload during a pending purchase, then reload after a committed purchase with the same cash and ownership. Start new discards the save, and malformed or unknown versions open normal token selection.",
       "completedAt": "2026-11-24T21:19:13+11:00"
+    },
+    {
+      "id": "share-result-card",
+      "title": "Export a shareable card from a completed game",
+      "group": "Sharing",
+      "notes": "Added plain-text result copying with a selectable fallback and a downloadable PNG generated in the browser. Chromium verifies the faction, cash and property totals in the copied text, the clipboard fallback, and the PNG header with Supabase disabled.",
+      "completedAt": "2026-11-24T21:19:13+11:00"
     }
   ]
 }
