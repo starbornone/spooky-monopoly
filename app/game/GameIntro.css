@@ -1,0 +1,42 @@
+.game-intro {
+  max-height: 30vh;
+  min-height: 30vh;
+  overflow: auto;
+  padding: 1rem 1.5rem 1rem 1rem;
+  scrollbar-color: var(--color-jasper) var(--color-rich-black);
+  scrollbar-width: thin;
+}
+
+.game-intro::-webkit-scrollbar {
+  width: 8px;
+}
+
+.game-intro::-webkit-scrollbar-track {
+  background-color: var(--color-rich-black);
+  border-radius: 4px;
+}
+
+.game-intro::-webkit-scrollbar-thumb {
+  background: var(--color-jasper);
+  border-radius: 4px;
+}
+
+.game-intro::-webkit-scrollbar-thumb:hover {
+  background: var(--color-flame);
+}
+
+.game-intro__title {
+  color: var(--color-floral-white);
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.game-intro__monopoly {
+  font-size: 2rem;
+}
+
+.game-intro__description {
+  color: var(--color-timberwolf);
+  font-size: 0.8rem;
+}

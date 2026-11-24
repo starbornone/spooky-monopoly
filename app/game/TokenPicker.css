@@ -1,0 +1,129 @@
+.token-picker {
+  align-items: center;
+  background-color: rgba(17, 21, 28, 0.6);
+  display: flex;
+  height: 100%;
+  justify-content: center;
+  left: 0;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 1000;
+}
+
+.token-picker__content {
+  background-color: var(--color-prussian-blue);
+  border: 6px solid var(--color-charcoal);
+  box-shadow: rgba(17, 21, 28, 0.6) 0px 5px 15px;
+  max-width: 500px;
+  padding: 2rem;
+  position: relative;
+  width: 90%;
+  animation: popup-fade-scale 360ms cubic-bezier(0.2, 0.9, 0.2, 1);
+}
+
+.token-picker__title {
+  color: var(--color-floral-white);
+  margin: 0 0 1rem 0;
+  text-align: center;
+}
+
+.token-picker__grid {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(3, minmax(80px, 1fr));
+  justify-items: center;
+  margin-bottom: 1rem;
+}
+
+.token-picker__option {
+  aspect-ratio: 1;
+  background: transparent;
+  border: 3px solid var(--color-charcoal);
+  cursor: pointer;
+  display: grid;
+  padding: 0.75rem;
+  place-items: center;
+  width: 100%;
+  transition:
+    transform 180ms ease,
+    background-color 180ms ease,
+    border-color 160ms ease;
+}
+
+.token-picker__option:hover {
+  background-color: var(--color-charcoal);
+  border-color: var(--color-flame);
+}
+
+.token-picker__option:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-prussian-blue), 0 0 0 5px var(--color-flame);
+}
+
+.token-picker__option--selected {
+  transform: scale(1.06);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35);
+  border-color: var(--color-jasper);
+}
+
+.token-picker__option--locked {
+  opacity: 0.5;
+  cursor: not-allowed;
+  position: relative;
+}
+
+.token-picker__option--locked:hover {
+  background-color: transparent;
+  border-color: var(--color-charcoal);
+  transform: none;
+}
+
+.token-picker__lock-info {
+  font-size: 0.7rem;
+  text-align: center;
+  color: var(--color-floral-white);
+  line-height: 1.2;
+}
+
+.token-picker__emoji {
+  font-size: clamp(1.5rem, 6vw, 2.25rem);
+}
+
+.token-picker__hint {
+  color: var(--color-floral-white);
+  font-size: 0.9rem;
+  margin: 0;
+  text-align: center;
+}
+
+.token-picker__loading {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  justify-content: center;
+  min-height: 200px;
+}
+
+.token-picker__loading-spinner {
+  animation: ghost-float 2s ease-in-out infinite;
+  font-size: 2rem;
+}
+
+.token-picker__loading p {
+  color: var(--color-floral-white);
+  font-size: 0.9rem;
+  margin: 0;
+  text-align: center;
+}
+
+@keyframes ghost-float {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}

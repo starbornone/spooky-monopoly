@@ -1,0 +1,17 @@
+.game-info {
+  max-height: 100vh;
+}
+
+.game-info__position,
+.game-info__current {
+  font-size: 1rem;
+}
+
+.game-info__current {
+  font-weight: 600;
+}
+
+.game-info__value {
+  color: var(--color-floral-white);
+  font-weight: 600;
+}

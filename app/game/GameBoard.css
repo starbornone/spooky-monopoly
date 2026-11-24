@@ -1,0 +1,229 @@
+.game-board {
+  display: flex;
+  min-height: 100vh;
+  max-height: 100vh;
+  overflow: hidden;
+}
+
+.game-board__container {
+  align-items: center;
+  background-color: var(--color-english-violet);
+  display: flex;
+  flex: 1;
+  justify-content: center;
+  max-height: 100vh;
+  overflow: auto;
+}
+
+.game-board__spaces {
+  aspect-ratio: 1;
+  background-color: var(--color-dark-purple);
+  border: 12px solid var(--color-dark-purple);
+  display: grid;
+  gap: 0;
+  grid-template-columns: repeat(5, 1fr);
+  grid-template-rows: repeat(5, 1fr);
+  max-height: min(96vh, 900px);
+  max-width: min(96vh, 900px);
+  width: 100%;
+}
+
+.game-board__space {
+  align-items: center;
+  background-color: var(--color-rich-black);
+  border: 6px solid var(--color-dark-purple);
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  justify-content: center;
+  overflow: hidden;
+  padding: 0.5rem;
+}
+
+.game-board__space:nth-child(1) {
+  grid-column: 5;
+  grid-row: 5;
+}
+
+.game-board__space:nth-child(2) {
+  grid-column: 4;
+  grid-row: 5;
+}
+
+.game-board__space:nth-child(3) {
+  grid-column: 3;
+  grid-row: 5;
+}
+
+.game-board__space:nth-child(4) {
+  grid-column: 2;
+  grid-row: 5;
+}
+
+.game-board__space:nth-child(5) {
+  grid-column: 1;
+  grid-row: 5;
+}
+
+.game-board__space:nth-child(6) {
+  grid-column: 1;
+  grid-row: 4;
+}
+
+.game-board__space:nth-child(7) {
+  grid-column: 1;
+  grid-row: 3;
+}
+
+.game-board__space:nth-child(8) {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+.game-board__space:nth-child(9) {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.game-board__space:nth-child(10) {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.game-board__space:nth-child(11) {
+  grid-column: 3;
+  grid-row: 1;
+}
+
+.game-board__space:nth-child(12) {
+  grid-column: 4;
+  grid-row: 1;
+}
+
+.game-board__space:nth-child(13) {
+  grid-column: 5;
+  grid-row: 1;
+}
+
+.game-board__space:nth-child(14) {
+  grid-column: 5;
+  grid-row: 2;
+}
+
+.game-board__space:nth-child(15) {
+  grid-column: 5;
+  grid-row: 3;
+}
+
+.game-board__space:nth-child(16) {
+  grid-column: 5;
+  grid-row: 4;
+}
+
+.game-board__space--owned {
+  background-color: var(--color-prussian-blue);
+  border: 6px solid var(--color-charcoal);
+  font-weight: 600;
+  position: relative;
+  animation: owned-glow 900ms ease;
+}
+
+@keyframes owned-glow {
+  0% {
+    box-shadow: 0 0 0 rgba(255, 255, 255, 0);
+  }
+  30% {
+    box-shadow: 0 6px 18px rgba(255, 91, 87, 0.12);
+  }
+  100% {
+    box-shadow: 0 0 0 rgba(255, 255, 255, 0);
+  }
+}
+
+.game-board__space--active {
+  border: 6px solid var(--color-hunyadi-yellow);
+  animation: space-pop 420ms cubic-bezier(0.2, 0.9, 0.2, 1);
+}
+
+.game-board__space-name {
+  font-size: clamp(0.6rem, 1.5vw, 0.9rem);
+  text-align: center;
+  line-height: 1.2;
+}
+
+.game-board__space--special .game-board__space-name {
+  font-weight: 600;
+}
+
+.game-board__space-owner {
+  font-size: 1.2rem;
+  position: absolute;
+  top: 0.25rem;
+  right: 0.25rem;
+}
+
+.game-board__player {
+  font-size: 2rem;
+}
+
+/* token movement bounce */
+.game-board__player--move {
+  animation: token-bounce 600ms cubic-bezier(0.2, 0.9, 0.2, 1);
+}
+
+@keyframes token-bounce {
+  0% {
+    transform: translateY(-8px) scale(0.95);
+  }
+  40% {
+    transform: translateY(6px) scale(1.06);
+  }
+  70% {
+    transform: translateY(-3px) scale(1.02);
+  }
+  100% {
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes space-pop {
+  0% {
+    transform: scale(0.98);
+  }
+  60% {
+    transform: scale(1.03);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.game-board__log {
+  border: 12px solid var(--color-dark-purple);
+  grid-column: 2 / 5;
+  grid-row: 2 / 5;
+  max-height: 100%;
+  overflow: auto;
+  padding: 1rem;
+  width: 100%;
+  scrollbar-color: var(--color-jasper) var(--color-dark-purple);
+  scrollbar-width: thin;
+}
+
+.game-sidebar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.game-sidebar::-webkit-scrollbar-track {
+  background: var(--color-dark-purple);
+  border-radius: 4px;
+}
+
+.game-sidebar::-webkit-scrollbar-thumb {
+  background: var(--color-jasper);
+  border-radius: 4px;
+}
+
+.game-sidebar::-webkit-scrollbar-thumb:hover {
+  background: var(--color-flame);
+}

@@ -1,0 +1,90 @@
+.money-display {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.money-display__balance {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+}
+
+.money-display__label {
+  font-size: 1.1rem;
+}
+
+.money-display__amount {
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+/* pulse when money changes */
+.money-display__amount--pulse {
+  animation: money-pulse 720ms cubic-bezier(0.16, 0.9, 0.24, 1);
+}
+
+@keyframes money-pulse {
+  0% {
+    transform: scale(1);
+    color: var(--color-floral-white);
+  }
+  30% {
+    transform: scale(1.08);
+    color: var(--color-jasper);
+  }
+  60% {
+    transform: scale(0.98);
+    color: var(--color-floral-white);
+  }
+  100% {
+    transform: scale(1);
+    color: var(--color-floral-white);
+  }
+}
+
+.money-display__properties {
+  font-size: 0.9rem;
+}
+
+.money-display__properties-header {
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+}
+
+.money-display__properties-list {
+  list-style: none;
+  margin: 0;
+  max-height: 30vh;
+  min-height: 30vh;
+  overflow: auto;
+  padding-right: 0.25rem;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-jasper) var(--color-rich-black);
+}
+
+.money-display__properties-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.money-display__properties-list::-webkit-scrollbar-track {
+  background-color: var(--color-rich-black);
+  border-radius: 4px;
+}
+
+.money-display__properties-list::-webkit-scrollbar-thumb {
+  background: var(--color-jasper);
+  border-radius: 4px;
+}
+
+.money-display__properties-list::-webkit-scrollbar-thumb:hover {
+  background: var(--color-flame);
+}
+
+.money-display__property {
+  color: var(--color-floral-white);
+}
+
+.money-display__property-rent {
+  color: var(--color-timberwolf);
+}
