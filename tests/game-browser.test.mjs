@@ -10,6 +10,42 @@ const viewports = [
   { width: 1024, height: 768 }
 ];
 
+test("resume an unresolved landing and a committed purchase without charging twice", { timeout: 45000 }, async t => {
+  const browser = await chromium.launch();
+  t.after(() => browser.close());
+  const page = await browser.newPage({ viewport: viewports[1], reducedMotion: "reduce" });
+  await serveGame(page);
+  await page.addInitScript(() => { Math.random = () => 0; });
+  await page.goto(origin);
+  await page.getByRole("button", { name: "Choose Human token 1" }).click();
+  await page.getByRole("button", { name: /Roll Dice/ }).click();
+  const buy = page.getByRole("button", { name: "Buy for $60" });
+  await buy.waitFor();
+  await page.reload();
+  await page.getByRole("button", { name: "Resume", exact: true }).click();
+  await buy.waitFor();
+  assert.equal(await page.locator(".game-sidebar__mobile-balance").innerText(), "Cash: $1000");
+  await buy.click();
+  await page.getByRole("button", { name: /Roll Dice/ }).waitFor();
+  await page.reload();
+  await page.getByRole("button", { name: "Resume", exact: true }).click();
+  await page.getByRole("button", { name: /Roll Dice/ }).waitFor();
+  assert.equal(await page.locator(".game-sidebar__mobile-balance").innerText(), "Cash: $940");
+  assert.match(await page.locator(".game-board__space--active").innerText(), /Owned/);
+  assert.match(await page.locator(".game-info__position").innerText(), /1\/20/);
+  assert.equal(await page.getByRole("dialog").count(), 0);
+
+  await page.reload();
+  await page.getByRole("button", { name: "Start new", exact: true }).click();
+  await page.getByRole("button", { name: "Choose Human token 1" }).waitFor();
+  for (const badSave of ["{", '{"version":2,"run":{}}']) {
+    await page.evaluate(value => localStorage.setItem("spooky-local-run", value), badSave);
+    await page.reload();
+    await page.getByRole("button", { name: "Choose Human token 1" }).waitFor();
+    assert.equal(await page.getByRole("button", { name: "Resume", exact: true }).count(), 0);
+  }
+});
+
 async function serveGame(page) {
   await page.route("**/*", async route => {
     const url = new URL(route.request().url());

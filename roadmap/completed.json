@@ -1,7 +1,7 @@
 {
   "schema": "name -roadmap/v1",
   "file": "completed",
-  "updatedAt": "2026-11-24T21:11:51+11:00",
+  "updatedAt": "2026-11-24T21:19:13+11:00",
   "project": {
     "key": "spooky-monopoly",
     "title": "Spooky Monopoly",
@@ -105,6 +105,13 @@
       "group": "Gameplay",
       "notes": "Verified complete rounds in Chromium at 320 × 568, 390 × 844, and 1024 × 768. The compact dock keeps Roll, the turn, current space, and cash within reach. Checks cover horizontal overflow, 44 CSS-pixel tap targets, primary action contrast, and focus restoration. Intro and turn log are expandable.",
       "completedAt": "2026-11-24T21:11:51+11:00"
+    },
+    {
+      "id": "resume-local-run",
+      "title": "Resume an interrupted run in the same browser",
+      "group": "Gameplay",
+      "notes": "Added versioned browser-local saves with explicit token and board identifiers. Chromium verifies reload during a pending purchase, then reload after a committed purchase with the same cash and ownership. Start new discards the save, and malformed or unknown versions open normal token selection.",
+      "completedAt": "2026-11-24T21:19:13+11:00"
     }
   ]
 }

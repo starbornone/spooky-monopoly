@@ -11,6 +11,10 @@ pnpm dev
 
 Open [http://localhost:3000](http://localhost:3000) or the address printed by the dev server if it uses a different port. The first success check is the **Choose Your Token** dialog. Pick a human token and roll the dice. Resolve the landing prompt to make the next turn available. After 20 turns, select **End Game** to view your results and restart. To try an unlock, finish a round in which you land on at least one property and buy none, then check that elf tokens are available after restarting in the same browser.
 
+## Resume a game
+
+The game saves your progress in this browser after each completed action. If you reload during a property choice, select **Resume** to return to that choice with the same balance. **Start new** discards the saved game and opens token selection. Use the same browser profile and site address to resume. If storage is unavailable or the save cannot be read, you can still start a new game.
+
 ## Enable shared statistics
 
 For shared results, make a copy of [`.env.example`](../.env.example) named `.env.local` in the repository root and fill in both values.

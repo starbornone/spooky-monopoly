@@ -1,7 +1,7 @@
 {
   "schema": "name -roadmap/v1",
   "file": "roadmap",
-  "updatedAt": "2026-11-24T21:11:51+11:00",
+  "updatedAt": "2026-11-24T21:19:13+11:00",
   "project": {
     "key": "spooky-monopoly",
     "title": "Spooky Monopoly",
@@ -26,12 +26,6 @@
       "title": "Validate submissions and show confirmed aggregates",
       "group": "Global statistics",
       "notes": "Phase 2 (Next). Validate result fields at runtime in the submit handler. Introduce a backward-compatible submission ID and a database uniqueness rule once the live schema is confirmed. Check HTTP responses in EndGame.tsx and refresh GlobalStats.tsx after a confirmed submission. Verify aggregates across response pages and confirm that a failed or retried submission leaves local play available."
-    },
-    {
-      "id": "resume-local-run",
-      "title": "Resume an interrupted run in the same browser",
-      "group": "Gameplay",
-      "notes": "Phase 2 (Next). Save a versioned snapshot after committed game actions using stable token and board identifiers. Restore turn, position, cash, owned properties, and any unresolved property choice without repeating a charge. Offer Resume and Start new, with a safe fallback for incompatible or corrupt saves."
     },
     {
       "id": "share-result-card",

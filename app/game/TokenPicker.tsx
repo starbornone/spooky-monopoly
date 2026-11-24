@@ -7,13 +7,20 @@ import "./TokenPicker.css";
 
 interface TokenPickerProps {
   onChoose: (token: PlayerToken) => void;
+  checkingSave?: boolean;
+  savedGame?: {
+    turnCount: number;
+    onResume: () => void;
+    onStartNew: () => void;
+  };
 }
 
-export const TokenPicker = ({ onChoose }: TokenPickerProps) => {
+export const TokenPicker = ({ onChoose, checkingSave, savedGame }: TokenPickerProps) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
   const [selected, setSelected] = useState<string | null>(null);
   const buttonRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const resumeRef = useRef<HTMLButtonElement>(null);
 
   const unlockedTokens = PLAYER_TOKENS.filter(
     token =>
@@ -34,6 +41,11 @@ export const TokenPicker = ({ onChoose }: TokenPickerProps) => {
   }, []);
 
   useEffect(() => {
+    if (checkingSave) return;
+    if (savedGame) {
+      resumeRef.current?.focus();
+      return;
+    }
     if (isLoaded && unlockedTokens.length > 0) {
       const firstUnlockedIndex = PLAYER_TOKENS.findIndex(
         token => unlockedTokens[0].icon === token.icon
@@ -43,7 +55,7 @@ export const TokenPicker = ({ onChoose }: TokenPickerProps) => {
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoaded, refreshKey]);
+  }, [isLoaded, refreshKey, checkingSave, savedGame]);
 
   const handleKeyDown = (
     e: React.KeyboardEvent<HTMLButtonElement>,
@@ -147,7 +159,7 @@ export const TokenPicker = ({ onChoose }: TokenPickerProps) => {
     }
   };
 
-  if (!isLoaded) {
+  if (!isLoaded || checkingSave) {
     return (
       <div className="token-picker" role="dialog" aria-modal="true">
         <div className="token-picker__content">
@@ -155,6 +167,21 @@ export const TokenPicker = ({ onChoose }: TokenPickerProps) => {
           <div className="token-picker__loading">
             <div className="token-picker__loading-spinner">👻</div>
             <p>Loading tokens...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (savedGame) {
+    return (
+      <div className="token-picker" role="dialog" aria-modal="true" aria-labelledby="saved-game-title">
+        <div className="token-picker__content">
+          <h2 id="saved-game-title" className="token-picker__title">Saved game</h2>
+          <p className="token-picker__hint">Turn {savedGame.turnCount} is saved in this browser.</p>
+          <div className="token-picker__saved-actions">
+            <button type="button" ref={resumeRef} onClick={savedGame.onResume}>Resume</button>
+            <button type="button" onClick={savedGame.onStartNew}>Start new</button>
           </div>
         </div>
       </div>
@@ -176,7 +203,7 @@ export const TokenPicker = ({ onChoose }: TokenPickerProps) => {
 
             return (
               <button
-                key={token.icon}
+                key={token.id}
                 ref={el => {
                   buttonRefs.current[index] = el;
                 }}

@@ -2,11 +2,12 @@
 
 import { useState, useRef, useEffect } from "react";
 
-import { boardSpaces, MAX_TURNS, PlayerToken } from "./data";
+import { boardSpaces, MAX_TURNS, PLAYER_TOKENS, type PlayerToken } from "./data";
 import { EndGame } from "./EndGame";
 import { GameSidebar } from "./GameSidebar";
 import { PropertyPopup } from "./PropertyPopup";
 import { TokenPicker } from "./TokenPicker";
+import { clearLocalRun, readLocalRun, writeLocalRun, type LocalRun } from "./utils/localRun";
 import { recordEarnedUnlocks, type PurchaseBehavior, type UnlockStatus } from "./utils/tokenUnlocks";
 
 import "./GameBoard.css";
@@ -21,7 +22,7 @@ export default function GameBoard() {
   const [playerToken, setPlayerToken] = useState<PlayerToken | null>(null);
   const [showPopup, setShowPopup] = useState(false);
   const [turnCount, setTurnCount] = useState(0);
-  const [canEndGame, setCanEndGame] = useState(false);
+  const [savedRun, setSavedRun] = useState<LocalRun | null | undefined>(undefined);
   const [gameLog, setGameLog] = useState<{ message: string; id: number }[]>([]);
   const logIdCounter = useRef(0);
   const [earnedUnlocks, setEarnedUnlocks] = useState<(keyof UnlockStatus)[]>([]);
@@ -32,22 +33,47 @@ export default function GameBoard() {
   });
 
   useEffect(() => {
-    if (playerToken) {
-      setMoney(playerToken.startingMoney);
-    }
-  }, [playerToken]);
+    setSavedRun(readLocalRun());
+  }, []);
+
+  useEffect(() => {
+    if (!playerToken || isRolling || gameEnded) return;
+    writeLocalRun({
+      tokenId: playerToken.id,
+      spaceId: boardSpaces[playerPosition].id,
+      turnCount,
+      money,
+      ownedProperties,
+      showPopup,
+      purchaseBehavior,
+      gameLog
+    });
+  }, [playerToken, isRolling, gameEnded, playerPosition, turnCount, money, ownedProperties, showPopup, purchaseBehavior, gameLog]);
+
+  const resumeRun = (run: LocalRun) => {
+    const token = PLAYER_TOKENS.find(item => item.id === run.tokenId);
+    const position = boardSpaces.findIndex(space => space.id === run.spaceId);
+    if (!token || position === -1) return;
+
+    setPlayerToken(token);
+    setPlayerPosition(position);
+    setTurnCount(run.turnCount);
+    setMoney(run.money);
+    setOwnedProperties(run.ownedProperties);
+    setShowPopup(run.showPopup);
+    setPurchaseBehavior(run.purchaseBehavior);
+    setGameLog(run.gameLog);
+    logIdCounter.current = run.gameLog.reduce((max, entry) => Math.max(max, entry.id), 0);
+    setSavedRun(null);
+  };
 
   const addToLog = (message: string) => {
-    const timestamp = performance.now() * 1000;
-    const counter = (logIdCounter.current += 1);
-    const random = Math.random() * 1000;
-    const uniqueId = Math.floor(timestamp + counter * 1000000 + random);
-
-    setGameLog(prev => [...prev, { message, id: uniqueId }]);
+    const id = ++logIdCounter.current;
+    setGameLog(prev => [...prev, { message, id }]);
   };
 
   const rollDice = () => {
-    if (isRolling) return;
+    if (isRolling || showPopup || turnCount >= MAX_TURNS) return;
     setIsRolling(true);
     let roll = Math.floor(Math.random() * 6) + 1;
 
@@ -180,9 +206,6 @@ export default function GameBoard() {
       setTurnCount(newTurnCount);
       setShowPopup(true);
 
-      if (newTurnCount >= MAX_TURNS) {
-        setCanEndGame(true);
-      }
 
       setIsRolling(false);
     }, 500);
@@ -338,7 +361,7 @@ export default function GameBoard() {
   const isOwned = ownedProperties.includes(currentSpace.id);
 
   const handleRestart = () => {
-    setCanEndGame(false);
+    clearLocalRun();
     setGameEnded(false);
     setEarnedUnlocks([]);
     setMoney(1500);
@@ -387,12 +410,13 @@ export default function GameBoard() {
   return (
     <div className="game-board">
       <GameSidebar
-        canEndGame={canEndGame}
+        canEndGame={turnCount >= MAX_TURNS}
         canRoll={!!playerToken}
         currentSpace={currentSpace}
         isRolling={isRolling}
         money={money}
         onEndGame={() => {
+          clearLocalRun();
           setEarnedUnlocks(recordEarnedUnlocks(purchaseBehavior));
           setGameEnded(true);
         }}
@@ -468,7 +492,21 @@ export default function GameBoard() {
       )}
 
       {!playerToken && (
-        <TokenPicker onChoose={token => setPlayerToken(token)} />
+        <TokenPicker
+          checkingSave={savedRun === undefined}
+          savedGame={savedRun ? {
+            turnCount: savedRun.turnCount,
+            onResume: () => resumeRun(savedRun),
+            onStartNew: () => {
+              clearLocalRun();
+              setSavedRun(null);
+            }
+          } : undefined}
+          onChoose={token => {
+            setMoney(token.startingMoney);
+            setPlayerToken(token);
+          }}
+        />
       )}
     </div>
   );
