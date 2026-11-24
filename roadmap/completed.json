@@ -1,7 +1,7 @@
 {
   "schema": "name -roadmap/v1",
   "file": "completed",
-  "updatedAt": "2026-11-24T21:27:16+11:00",
+  "updatedAt": "2026-11-24T21:33:04+11:00",
   "project": {
     "key": "spooky-monopoly",
     "title": "Spooky Monopoly",
@@ -126,6 +126,13 @@
       "group": "Replay",
       "notes": "Extracted deterministic solo turn rules and added opt-in versioned challenge links with stable token IDs and a saved seed. Chromium verifies two independent browser profiles produce the same result and turn log with identical actions, including after one reloads mid-turn. It also verifies unsupported rules feedback, copying the link, and keeping an existing save when declining a challenge.",
       "completedAt": "2026-11-24T21:27:16+11:00"
+    },
+    {
+      "id": "add-ghost-ledger",
+      "title": "Compare an alternate property decision in Ghost Ledger",
+      "group": "Replay",
+      "notes": "Recorded rolls and choices in local saves and added the end-game Ghost Ledger. It checks that the original replay matches the reported result, shows cash and owned property names side by side, and stops at the first invalid later action. Chromium verifies both a replay that reaches the final turn and one that stops on turn 17. Comparisons leave the reported result unchanged.",
+      "completedAt": "2026-11-24T21:33:04+11:00"
     }
   ]
 }

@@ -8,6 +8,8 @@ import { GameSidebar } from "./GameSidebar";
 import { PropertyPopup } from "./PropertyPopup";
 import { TokenPicker } from "./TokenPicker";
 import { challengeVersion, formatChallenge, randomForChallengeTurn, readChallenge, type Challenge } from "./utils/challenge";
+import { getPropertyActions } from "./utils/getPropertyActions";
+import type { RecordedTurn, TurnChoice } from "./utils/ghostLedger";
 import { clearLocalRun, readLocalRun, writeLocalRun, type LocalRun } from "./utils/localRun";
 import { buySoloProperty, chooseSoloRoll, resolveSoloLanding } from "./utils/soloRules";
 import { recordEarnedUnlocks, type PurchaseBehavior, type UnlockStatus } from "./utils/tokenUnlocks";
@@ -27,6 +29,7 @@ export default function GameBoard() {
   const [savedRun, setSavedRun] = useState<LocalRun | null | undefined>(undefined);
   const [invitation, setInvitation] = useState<Challenge | null>(null);
   const [challengeSeed, setChallengeSeed] = useState<number | undefined>(undefined);
+  const [recordedTurns, setRecordedTurns] = useState<RecordedTurn[] | undefined>([]);
   const [gameLog, setGameLog] = useState<{ message: string; id: number }[]>([]);
   const logIdCounter = useRef(0);
   const [earnedUnlocks, setEarnedUnlocks] = useState<(keyof UnlockStatus)[]>([]);
@@ -53,9 +56,10 @@ export default function GameBoard() {
       ownedProperties,
       showPopup,
       purchaseBehavior,
-      gameLog
+      gameLog,
+      turns: recordedTurns
     });
-  }, [playerToken, challengeSeed, isRolling, gameEnded, playerPosition, turnCount, money, ownedProperties, showPopup, purchaseBehavior, gameLog]);
+  }, [playerToken, challengeSeed, isRolling, gameEnded, playerPosition, turnCount, money, ownedProperties, showPopup, purchaseBehavior, gameLog, recordedTurns]);
 
   const dismissInvitation = () => {
     if (!invitation) return;
@@ -69,6 +73,7 @@ export default function GameBoard() {
     dismissInvitation();
     setSavedRun(null);
     setChallengeSeed(seed);
+    setRecordedTurns([]);
     setMoney(token.startingMoney);
     setPlayerToken(token);
   };
@@ -80,6 +85,7 @@ export default function GameBoard() {
 
     setPlayerToken(token);
     setChallengeSeed(run.challenge?.seed);
+    setRecordedTurns(run.turns);
     dismissInvitation();
     setPlayerPosition(position);
     setTurnCount(run.turnCount);
@@ -118,11 +124,17 @@ export default function GameBoard() {
         }));
       }
       setTurnCount(turnCount + 1);
+      setRecordedTurns(turns => turns && [...turns, { roll, choice: null }]);
       setShowPopup(true);
       setAnimatePlayer(true);
       setIsRolling(false);
       setTimeout(() => setAnimatePlayer(false), 700);
     }, 500);
+  };
+
+  const finishLanding = (choice: TurnChoice) => {
+    setRecordedTurns(turns => turns?.map((turn, index) => index === turns.length - 1 ? { ...turn, choice } : turn));
+    setShowPopup(false);
   };
 
   const handlePurchase = () => {
@@ -133,7 +145,7 @@ export default function GameBoard() {
     setOwnedProperties(purchase.ownedProperties);
     purchase.logs.forEach(addToLog);
     setPurchaseBehavior(prev => ({ ...prev, totalPropertiesBought: prev.totalPropertiesBought + 1 }));
-    setShowPopup(false);
+    finishLanding("buy");
   };
 
   const currentSpace = boardSpaces[playerPosition];
@@ -184,6 +196,7 @@ export default function GameBoard() {
             playerToken={playerToken}
             onRestart={handleRestart}
             earnedUnlocks={earnedUnlocks}
+            recordedTurns={recordedTurns}
             challengeLink={playerToken && challengeSeed !== undefined
               ? `/?challenge=${formatChallenge(playerToken.id, challengeSeed)}`
               : undefined}
@@ -270,7 +283,17 @@ export default function GameBoard() {
             playerToken?.canResistBuyingProperties ?? false
           }
           money={money}
-          onClose={() => setShowPopup(false)}
+          onClose={() => {
+            if (!playerToken) return;
+            const actions = getPropertyActions({
+              ...playerToken,
+              isUnownedProperty: currentSpace.type === "property" && !isOwned,
+              price: currentSpace.price,
+              money
+            });
+            if (actions.canPass) finishLanding("pass");
+            else if (actions.canContinue) finishLanding("continue");
+          }}
           onPurchase={handlePurchase}
           space={currentSpace}
           playerToken={playerToken}

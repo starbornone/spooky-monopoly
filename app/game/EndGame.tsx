@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 
 import { ResultShare } from "./ResultShare";
+import { GhostLedger } from "./GhostLedger";
 import { BoardSpace, PlayerToken } from "./data";
 import {
   getMessage,
@@ -11,6 +12,7 @@ import {
   getSpecialAchievements,
 } from "./utils";
 import { factionDetails, type UnlockStatus } from "./utils/tokenUnlocks";
+import type { RecordedTurn } from "./utils/ghostLedger";
 
 import "./EndGame.css";
 
@@ -21,6 +23,7 @@ interface EndGameProps {
   onRestart: () => void;
   earnedUnlocks: (keyof UnlockStatus)[];
   challengeLink?: string;
+  recordedTurns?: RecordedTurn[];
 }
 
 export const EndGame = ({
@@ -30,6 +33,7 @@ export const EndGame = ({
   onRestart,
   earnedUnlocks,
   challengeLink,
+  recordedTurns,
 }: EndGameProps) => {
   const totalRevenue = ownedProperties.reduce(
     (sum, prop) => sum + (prop.rent || 0),
@@ -177,6 +181,9 @@ export const EndGame = ({
         </p>
       </div>
 
+      {playerToken && recordedTurns && (
+        <GhostLedger token={playerToken} turns={recordedTurns} money={money} ownedProperties={ownedProperties} />
+      )}
       <ResultShare
         title={playerTitle}
         faction={factionDetails[playerToken?.group ?? "humans"].name}

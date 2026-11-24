@@ -1,7 +1,7 @@
 {
   "schema": "name -roadmap/v1",
   "file": "roadmap",
-  "updatedAt": "2026-11-24T21:27:16+11:00",
+  "updatedAt": "2026-11-24T21:33:04+11:00",
   "project": {
     "key": "spooky-monopoly",
     "title": "Spooky Monopoly",
@@ -26,12 +26,6 @@
       "title": "Validate submissions and show confirmed aggregates",
       "group": "Global statistics",
       "notes": "Phase 2 (Next). Validate result fields at runtime in the submit handler. Introduce a backward-compatible submission ID and a database uniqueness rule once the live schema is confirmed. Check HTTP responses in EndGame.tsx and refresh GlobalStats.tsx after a confirmed submission. Verify aggregates across response pages and confirm that a failed or retried submission leaves local play available."
-    },
-    {
-      "id": "add-ghost-ledger",
-      "title": "Compare an alternate property decision in Ghost Ledger",
-      "group": "Replay",
-      "notes": "Phase 3 (Later). Build on deterministic challenges and structured turn inputs. From EndGame.tsx, let the player change one legal property decision and replay under the same random inputs. Show cash and ownership timelines side by side and flag the first later action that becomes illegal. Verify that replaying the original actions reproduces the actual result."
     },
     {
       "id": "define-two-seat-match-rules",

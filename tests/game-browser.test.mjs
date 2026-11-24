@@ -41,7 +41,9 @@ test("seeded challenge links produce the same result in fresh browsers after a r
       await page.getByRole("button", { name: /End Game/ }).click();
       await page.getByRole("button", { name: "Copy challenge link" }).click();
       assert.equal(await page.getByRole("textbox", { name: "Challenge link" }).inputValue(), origin + "/?challenge=" + code);
-      return { money: saved.money, properties: saved.ownedProperties, space: saved.spaceId, log: saved.gameLog };
+      assert.equal(saved.turns.length, 20);
+      assert.ok(saved.turns.every(turn => turn.choice !== null));
+      return { money: saved.money, properties: saved.ownedProperties, space: saved.spaceId, log: saved.gameLog, turns: saved.turns };
     } finally {
       await page.close();
     }
@@ -193,6 +195,21 @@ test("complete and restart a fixed-roll solo game on narrow and landscape screen
         if (!buyProperty) await page.getByText(/Elf tokens unlocked/).waitFor();
         const finalBalance = await page.locator(".end-game__stat-value").first().innerText();
         assert.equal(finalBalance, buyProperty ? "$1249" : "$1300");
+        const ledger = page.getByRole("region", { name: "Ghost Ledger" });
+        const choices = ledger.getByLabel("Alternate property choice");
+        if (buyProperty) {
+          await choices.selectOption("1:pass");
+          const first = ledger.getByRole("row", { name: /^1 \(changed\)/ });
+          assert.match(await first.innerText(), /\$940\s+Pumpkin Exploitation Plaza\s+\$1000\s+No properties/);
+          assert.match(await ledger.getByRole("status").innerText(), /Replay stopped on turn 17.*Continue action is no longer legal/s);
+          assert.match(await ledger.getByRole("row", { name: /^17\s/ }).innerText(), /Stopped/);
+        } else {
+          await choices.selectOption("20:buy");
+          const last = ledger.getByRole("row", { name: /^20 \(changed\)/ });
+          assert.match(await last.innerText(), /\$1300\s+No properties\s+\$1180\s+Seasonal Parasite Plaza/);
+          assert.equal(await ledger.getByRole("status").count(), 0);
+        }
+        assert.equal(await page.locator(".end-game__stat-value").first().innerText(), finalBalance);
         if (buyProperty) {
           const copy = page.getByRole("button", { name: "Copy result text" });
           await copy.click();

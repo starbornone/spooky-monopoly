@@ -25,6 +25,12 @@ Check **Create a shareable challenge** before choosing a token. At the end of th
 
 Opening a link does not replace a local save until you start the challenge. If you resume an interrupted challenge, it uses the same seed and picks up at the saved turn.
 
+## Try an alternate choice with Ghost Ledger
+
+After a run with a property choice you could have made differently, open **Alternate property choice** in Ghost Ledger. Choose a turn to compare the original and alternate cash and property ownership after every turn. The replay uses the recorded dice rolls and your original later choices. If one of those choices becomes impossible, the ledger identifies that turn and stops the alternate run. Your saved unlocks and official result stay the same.
+
+Runs started before turn recording can still be resumed. Ghost Ledger is available for new runs with a complete history and a legal alternate choice.
+
 ## Enable shared statistics
 
 For shared results, make a copy of [`.env.example`](../.env.example) named `.env.local` in the repository root and fill in both values.

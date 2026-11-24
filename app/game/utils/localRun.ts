@@ -1,5 +1,6 @@
 import { boardSpaces, MAX_TURNS, PLAYER_TOKENS } from "../data";
 import { challengeVersion, isChallengeSeed } from "./challenge";
+import { turnChoices, type RecordedTurn } from "./ghostLedger";
 import type { PurchaseBehavior } from "./tokenUnlocks";
 
 export interface LocalRun {
@@ -12,6 +13,7 @@ export interface LocalRun {
   showPopup: boolean;
   purchaseBehavior: PurchaseBehavior;
   gameLog: { id: number; message: string }[];
+  turns?: RecordedTurn[];
 }
 
 const storageKey = "spooky-local-run";
@@ -44,11 +46,21 @@ function isLocalRun(value: unknown): value is LocalRun {
     run.gameLog.every(entry => entry && isCounter(entry.id) && typeof entry.message === "string");
 }
 
+function hasValidHistory(run: LocalRun): boolean {
+  const turns = run.turns;
+  if (turns === undefined) return true;
+  return Array.isArray(turns) && turns.length === run.turnCount &&
+    turns.every((entry, index) => entry && isCounter(entry.roll) && entry.roll >= 1 && entry.roll <= 6 &&
+      (run.showPopup && index === turns.length - 1
+        ? entry.choice === null
+        : turnChoices.some(choice => choice === entry.choice)));
+}
+
 export function readLocalRun(): LocalRun | null {
   try {
     const stored = localStorage.getItem(storageKey);
     const data = stored ? JSON.parse(stored) : null;
-    return data?.version === version && isLocalRun(data.run) ? data.run : null;
+    return data?.version === version && isLocalRun(data.run) && hasValidHistory(data.run) ? data.run : null;
   } catch {
     return null;
   }
