@@ -1,7 +1,7 @@
 {
   "schema": "name -roadmap/v1",
   "file": "roadmap",
-  "updatedAt": "2026-11-24T21:33:04+11:00",
+  "updatedAt": "2026-11-24T21:40:03+11:00",
   "project": {
     "key": "spooky-monopoly",
     "title": "Spooky Monopoly",
@@ -31,13 +31,13 @@
       "id": "define-two-seat-match-rules",
       "title": "Define and test the two-seat match rules",
       "group": "Multiplayer",
-      "notes": "Phase 3 (Later). Multiplayer stage 1 (supervised two-player pilot). Record the contract in docs/multiplayer-rules.md before changing the engine. Prototype equal human seats, random first seat, and 10 rounds with one turn per player per round. Define legal Buy and Pass actions for unowned properties. Test posted rent transferred to the owner on landing, capped by the payer’s cash, with both players remaining through the last round. Score cash plus owned property purchase value and allow ties. Include worked examples for unaffordable rent, a purchase, and a tie. Playtest first-seat advantage before tuning rent and pacing. The proposed pilot contract and test scenarios are in docs/multiplayer-rules.md. Executable match-rule verification and first-seat playtesting are pending."
+      "notes": "Phase 3 (Later). Multiplayer stage 1 (supervised two-player pilot). Record the contract in docs/multiplayer-rules.md before changing the engine. Prototype equal human seats, random first seat, and 10 rounds with one turn per player per round. Define legal Buy and Pass actions for unowned properties. Test posted rent transferred to the owner on landing, capped by the payer’s cash, with both players remaining through the last round. Score cash plus owned property purchase value and allow ties. Include worked examples for unaffordable rent, a purchase, and a tie. Playtest first-seat advantage before tuning rent and pacing. The proposed pilot contract and test scenarios are in docs/multiplayer-rules.md. The pilot rules now have executable tests. Human playtesting and any balance tuning are still pending."
     },
     {
       "id": "add-authoritative-turn-engine",
       "title": "Resolve shared turns on the server",
       "group": "Multiplayer",
-      "notes": "Phase 3 (Later). Multiplayer stage 1 (supervised two-player pilot). After define-two-seat-match-rules and the solo legal-choice fixes, extract deterministic turn rules from GameBoard.tsx and PropertyPopup.tsx. Reuse the rules foundation with seeded challenges. Challenge-link UI and Ghost Ledger are independent. Keep solo regression fixtures for balances, purchases, and unlocks. In multiplayer, accept a player intent with an action ID and expected room revision, validate the acting seat and legal action, and resolve randomness, transfers, ownership, and turn advancement in a single commit. Verify duplicate, stale, and wrong-seat actions cannot apply a second move."
+      "notes": "Phase 3 (Later). Multiplayer stage 1 (supervised two-player pilot). After define-two-seat-match-rules and the solo legal-choice fixes, extract deterministic turn rules from GameBoard.tsx and PropertyPopup.tsx. Reuse the rules foundation with seeded challenges. Challenge-link UI and Ghost Ledger are independent. Keep solo regression fixtures for balances, purchases, and unlocks. In multiplayer, accept a player intent with an action ID and expected room revision, validate the acting seat and legal action, and resolve randomness, transfers, ownership, and turn advancement in a single commit. Verify duplicate, stale, and wrong-seat actions cannot apply a second move. The server-side command layer is implemented and tested against an in-memory store, including simultaneous retries. The verified room membership adapter and durable atomic match-and-receipt commit are still pending."
     },
     {
       "id": "add-private-invite-rooms",

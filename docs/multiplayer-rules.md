@@ -34,3 +34,13 @@ Leaving or losing a connection never makes a property choice for the absent play
 | The second seat buys a property on its tenth turn. | Record the purchase first, then finalise both scores. No eleventh turn begins. |
 
 For the fairness pilot, play paired matches with the same recorded die sequence and swap which player goes first. Record scores, property ownership by round, rent transfers, turns at zero cash, and where each player felt the result was decided. Look for an advantage that persists after swapping seats before adjusting posted rent or round count.
+
+## Executable checks
+
+Run `pnpm test` for the match rules and command tests.
+
+## Server integration
+
+The [pilot engine](../app/server/multiplayer/pilotMatch.ts) accepts a revision, action ID, and intent. The room handler must resolve the room and seat from a verified membership before it calls the engine. The server rolls the die. Values such as roll, price, and ownership are derived inside the game logic.
+
+The durable store must compare the expected revision and save the new state and receipt together in one transaction. Receipts are keyed by room, seat, and action ID. Identical retries return the original receipt. Clients should only apply snapshots whose revision is at least as recent as their current view. The tests use an in-memory implementation of this contract. Room authentication, database persistence, and the browser match are still open.
