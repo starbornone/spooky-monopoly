@@ -21,6 +21,9 @@ async function attach(page, forward) {
     if (url.pathname.startsWith("/_next/static/")) {
       return route.fulfill({ path: ".next/" + url.pathname.slice("/_next/".length) });
     }
+    if (url.pathname === "/artwork/pumpkin.webp") {
+      return route.fulfill({ path: "public/artwork/pumpkin.webp", contentType: "image/webp" });
+    }
     if (!url.pathname.startsWith("/api/multiplayer")) return route.fulfill({ status: 404 });
     await forward(route, incoming, url);
   });
