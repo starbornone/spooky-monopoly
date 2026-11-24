@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Artwork, IllustratedLabel, factionArtwork } from "./Artwork";
 
 import { loadGlobalStats, type GlobalStatsState } from "./utils/loadGlobalStats";
 
@@ -59,9 +60,9 @@ export const GlobalStats = () => {
 
   const groupLabels = {
     all: "All",
-    vampires: "🧛",
-    humans: "👩‍💼",
-    elves: "🧝",
+    vampires: "Vampires",
+    humans: "Humans",
+    elves: "Elves",
   };
 
   return (
@@ -69,14 +70,14 @@ export const GlobalStats = () => {
       <h2 className="global-stats__title">Global Statistics</h2>
 
       <div className="global-stats__tabs">
-        {Object.entries(groupLabels).map(([key, label]) => (
+        {(Object.keys(groupLabels) as (keyof typeof groupLabels)[]).map(key => (
           <button
             key={key}
             aria-pressed={activeTab === key}
             className={`global-stats__tab ${activeTab === key ? "global-stats__tab--active" : ""}`}
-            onClick={() => setActiveTab(key as typeof activeTab)}
+            onClick={() => setActiveTab(key)}
           >
-            {label}
+            {key !== "all" && <Artwork name={factionArtwork[key]} />}{groupLabels[key]}
           </button>
         ))}
       </div>
@@ -108,7 +109,7 @@ export const GlobalStats = () => {
           {titles.map(([title, count]) => (
             <li key={title} className="global-stats__list-item">
               <span className="global-stats__list-count">{count}</span> &#215;{" "}
-              <span className="global-stats__list-name">{title.slice(2)}</span>
+              <span className="global-stats__list-name"><IllustratedLabel value={title} /></span>
             </li>
           ))}
         </ul>
@@ -120,10 +121,7 @@ export const GlobalStats = () => {
           {achievements.map(([achievement, count]) => (
             <li key={achievement} className="global-stats__list-item">
               <span className="global-stats__list-count">{count}</span> &#215;{" "}
-              <span className="global-stats__list-name">
-                {achievement.slice(2)}
-                {achievement.slice(0, 2)}
-              </span>
+              <span className="global-stats__list-name"><IllustratedLabel value={achievement} /></span>
             </li>
           ))}
         </ul>

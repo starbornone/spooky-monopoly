@@ -1,3 +1,5 @@
+import { Artwork } from "./Artwork";
+
 import "./GameIntro.css";
 
 export const GameIntro = () => {
@@ -8,7 +10,9 @@ export const GameIntro = () => {
         <br />
         Haunted Halloween
         <br />
-        <span className="game-intro__monopoly">Monopoly 🎃💰</span>
+        <span className="game-intro__monopoly">
+          Monopoly <Artwork name="pumpkin" /><Artwork name="coin-purse" />
+        </span>
       </h1>
       <p className="game-intro__description">
         Did you know Monopoly started as a radical critique? Born in the early

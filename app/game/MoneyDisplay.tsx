@@ -1,5 +1,6 @@
 import { BoardSpace } from "./data";
 import { useEffect, useState } from "react";
+import { Artwork } from "./Artwork";
 
 import "./MoneyDisplay.css";
 
@@ -20,7 +21,7 @@ export const MoneyDisplay = ({ money, ownedProperties }: MoneyDisplayProps) => {
   return (
     <div className="money-display">
       <div className="money-display__balance">
-        <span className="money-display__label">💀💵</span>
+        <span className="money-display__label"><Artwork name="banknotes" /> Cash</span>
         <span
           className={`money-display__amount ${pulse ? "money-display__amount--pulse" : ""}`}
         >
@@ -29,7 +30,7 @@ export const MoneyDisplay = ({ money, ownedProperties }: MoneyDisplayProps) => {
       </div>
 
       <div className="money-display__properties">
-        <div className="money-display__properties-header">💀🏚️</div>
+        <div className="money-display__properties-header"><Artwork name="manor" /> Properties</div>
         <ul className="money-display__properties-list">
           {ownedProperties.length > 0 &&
             ownedProperties.map(property => (

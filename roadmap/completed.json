@@ -1,7 +1,7 @@
 {
   "schema": "name -roadmap/v1",
   "file": "completed",
-  "updatedAt": "2026-11-24T23:53:35+11:00",
+  "updatedAt": "2026-11-25T00:12:51+11:00",
   "project": {
     "key": "spooky-monopoly",
     "title": "Spooky Monopoly",
@@ -189,6 +189,20 @@
       "group": "Solo gameplay",
       "notes": "The character picker and solo board use the same nine illustrated Human, Vampire and Elf portraits, keyed by the existing token IDs.",
       "completedAt": "2026-11-24T23:53:35+11:00"
+    },
+    {
+      "id": "illustrate-game-icons-and-theme",
+      "title": "Illustrate game icons and match the theme to the character art",
+      "group": "Presentation",
+      "notes": "Added 25 illustrated WebP emblems and a portrait-inspired palette across solo play, the private pilot and exported recaps. The UI renders artwork for existing saved log and statistics labels while retaining their stored values.",
+      "completedAt": "2026-11-25T00:09:29+11:00"
+    },
+    {
+      "id": "open-solo-game-panels-by-default",
+      "title": "Open the portfolio and turn log by default",
+      "group": "Solo gameplay",
+      "notes": "Properties and cash and the turn log start open, can still be collapsed, and use bounded scrolling on compact screens.",
+      "completedAt": "2026-11-25T00:12:51+11:00"
     }
   ]
 }

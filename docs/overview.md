@@ -5,9 +5,11 @@
 ## What you can do
 
 - Choose a character portrait to mark your position on the solo board. Roll the dice and decide what to do when you land on a property. After 20 turns, the game summarises your cash and properties.
+- Properties and cash and the turn log open by default. Select their headings to collapse or reopen them.
 - Unlock additional token groups through play. The picker shows each faction's rules once you can select it. Unlocks are stored in the current browser and carry across games on the same origin.
 - Resume a solo game in the same browser, or share a seeded challenge after playing.
 - View aggregated results across games when the app is connected to its Supabase statistics table.
+- Illustrated emblems mark game actions, achievements and statistics. The solo game, private pilot and downloadable results share the portraits' warm charcoal, burgundy, moss and copper palette.
 - Start at `/` or follow an existing Weird Web October link to `/2025/spooky`.
 
 A solo game can be played from start to finish without a database. The pilot uses invite links and browser-scoped seats, with its state stored separately from solo statistics. Player accounts and cross-device unlocks are still outside the scope.

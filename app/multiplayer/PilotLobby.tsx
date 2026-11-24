@@ -311,7 +311,7 @@ function MatchResult({ match, result, players }: {
       <ResultExport title={outcome} kind="recap" filename="spooky-monopoly-match.png"
         summary={["Spooky Monopoly", outcome, ...highlights, rounds].join("\n")}
         imageRows={[...highlights, rounds].map(value => ({
-          value, font: "24px sans-serif", color: "#f2ddd1", spacing: 38
+          value, font: "24px sans-serif", tone: "text-muted", spacing: 38
         }))} />
     </section>
   );

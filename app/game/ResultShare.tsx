@@ -1,6 +1,7 @@
 "use client";
 
 import { useId, useState } from "react";
+import { artworkPath, illustratedLabel, type ArtworkName } from "./Artwork";
 
 import "./ResultShare.css";
 
@@ -37,12 +38,14 @@ function wrapLines(context: CanvasRenderingContext2D, text: string, width: numbe
 interface ImageRow {
   value: string;
   font: string;
-  color: string;
   spacing: number;
+  tone?: "copper" | "text-muted";
+  artwork?: ArtworkName;
 }
 
 interface ResultExportProps {
   title: string;
+  titleArtwork?: ArtworkName;
   imageRows: ImageRow[];
   summary: string;
   kind: "result" | "recap";
@@ -50,7 +53,7 @@ interface ResultExportProps {
   challengeLink?: string;
 }
 
-async function createResultImage(title: string, imageRows: ImageRow[]): Promise<Blob> {
+async function createResultImage(title: string, titleArtwork: ArtworkName | undefined, imageRows: ImageRow[]): Promise<Blob> {
   const canvas = document.createElement("canvas");
   const context = canvas.getContext("2d");
   if (!context) throw new Error("Canvas is unavailable");
@@ -58,33 +61,46 @@ async function createResultImage(title: string, imageRows: ImageRow[]): Promise<
   const inset = 52;
   const width = 720;
   const contentWidth = width - inset * 2;
-  const text = [
-    { value: "Spooky Monopoly", font: "bold 25px sans-serif", color: "#e7a677", spacing: 39 },
-    { value: title, font: "bold 38px sans-serif", color: "#fffcf2", spacing: 49 },
+  const styles = getComputedStyle(document.documentElement);
+  const color = (name: string) => styles.getPropertyValue(`--color-${name}`).trim();
+  const artworkSize = 26;
+  const artworkGutter = 36;
+  const text: ImageRow[] = [
+    { value: "Spooky Monopoly", font: "bold 25px Georgia, serif", tone: "copper", artwork: "pumpkin", spacing: 39 },
+    { value: title, font: "bold 38px Georgia, serif", artwork: titleArtwork, spacing: 49 },
     ...imageRows
   ];
   const rows = text.map(row => {
     context.font = row.font;
-    return { ...row, lines: wrapLines(context, row.value, contentWidth) };
+    const indent = row.artwork ? artworkGutter : 0;
+    return { ...row, indent, lines: wrapLines(context, row.value, contentWidth - indent) };
   });
+  const artwork = await Promise.all(rows.map(async row => {
+    if (!row.artwork) return null;
+    const image = new Image();
+    image.src = artworkPath(row.artwork);
+    return image.decode().then(() => image, () => null);
+  }));
 
   canvas.width = width;
   canvas.height = inset * 2 + rows.reduce((height, row) => height + row.spacing * row.lines.length, 0);
-  context.fillStyle = "#221b31";
+  context.fillStyle = color("charcoal");
   context.fillRect(0, 0, canvas.width, canvas.height);
-  context.strokeStyle = "#b86d6d";
+  context.strokeStyle = color("copper");
   context.lineWidth = 3;
   context.strokeRect(19, 19, canvas.width - 38, canvas.height - 38);
   context.textBaseline = "top";
   let y = inset;
-  for (const row of rows) {
+  rows.forEach((row, index) => {
     context.font = row.font;
-    context.fillStyle = row.color;
+    context.fillStyle = color(row.tone ?? "text");
+    const image = artwork[index];
+    if (image) context.drawImage(image, inset, y, artworkSize, artworkSize);
     for (const line of row.lines) {
-      context.fillText(line, inset, y, contentWidth);
+      context.fillText(line, inset + row.indent, y, contentWidth - row.indent);
       y += row.spacing;
     }
-  }
+  });
 
   return new Promise((resolve, reject) => {
     canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error("The image could not be generated")), "image/png");
@@ -92,29 +108,31 @@ async function createResultImage(title: string, imageRows: ImageRow[]): Promise<
 }
 
 export function ResultShare(result: ResultShareProps) {
-  const imageRows = [
-    { value: result.faction, font: "25px sans-serif", color: "#f2ddd1", spacing: 44 },
-    { value: `$${result.money} cash  ·  ${formatPropertyCount(result.properties)}`, font: "bold 25px sans-serif", color: "#fffcf2", spacing: 35 },
-    { value: `$${result.propertyValue} total property value`, font: "24px sans-serif", color: "#f2ddd1", spacing: 42 }
+  const title = illustratedLabel(result.title);
+  const achievements = result.achievements.map(illustratedLabel);
+  const imageRows: ImageRow[] = [
+    { value: result.faction, font: "25px sans-serif", tone: "text-muted", spacing: 44 },
+    { value: `$${result.money} cash  ·  ${formatPropertyCount(result.properties)}`, font: "bold 25px sans-serif", spacing: 35 },
+    { value: `$${result.propertyValue} total property value`, font: "24px sans-serif", tone: "text-muted", spacing: 42 }
   ];
   if (result.achievements.length) {
-    imageRows.push({ value: "Achievements", font: "bold 24px sans-serif", color: "#e7a677", spacing: 34 });
-    for (const value of result.achievements) {
-      imageRows.push({ value: `• ${value}`, font: "22px sans-serif", color: "#fffcf2", spacing: 33 });
+    imageRows.push({ value: "Achievements", font: "bold 24px sans-serif", tone: "copper", spacing: 34 });
+    for (const { text, artwork } of achievements) {
+      imageRows.push({ value: text, artwork, font: "22px sans-serif", spacing: 33 });
     }
   }
   const summary = [
     "Spooky Monopoly",
-    `${result.title} · ${result.faction}`,
+    `${title.text} · ${result.faction}`,
     `$${result.money} cash · ${formatPropertyCount(result.properties)} · $${result.propertyValue} total property value`,
-    ...result.achievements.map(achievement => `• ${achievement}`)
+    ...achievements.map(({ text }) => `• ${text}`)
   ].join("\n");
 
-  return <ResultExport title={result.title} imageRows={imageRows} summary={summary} kind="result"
+  return <ResultExport title={title.text} titleArtwork={title.artwork} imageRows={imageRows} summary={summary} kind="result"
     filename="spooky-monopoly-result.png" challengeLink={result.challengeLink} />;
 }
 
-export function ResultExport({ title, imageRows, summary, kind, filename, challengeLink }: ResultExportProps) {
+export function ResultExport({ title, titleArtwork, imageRows, summary, kind, filename, challengeLink }: ResultExportProps) {
   const headingId = useId();
   const label = kind === "result" ? "Result" : "Recap";
   const [status, setStatus] = useState("");
@@ -137,7 +155,7 @@ export function ResultExport({ title, imageRows, summary, kind, filename, challe
   const download = async () => {
     setDownloading(true);
     try {
-      const url = URL.createObjectURL(await createResultImage(title, imageRows));
+      const url = URL.createObjectURL(await createResultImage(title, titleArtwork, imageRows));
       const link = document.createElement("a");
       link.href = url;
       link.download = filename;

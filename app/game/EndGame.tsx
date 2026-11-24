@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 
 import { ResultShare } from "./ResultShare";
+import { Artwork, IllustratedLabel } from "./Artwork";
 import { GhostLedger } from "./GhostLedger";
 import { BoardSpace, PlayerToken } from "./data";
 import {
@@ -102,7 +103,7 @@ export const EndGame = ({
 
   return (
     <div className="end-game">
-      <h1 className="end-game__title">{playerTitle}</h1>
+      <h1 className="end-game__title"><IllustratedLabel value={playerTitle} /></h1>
       {earnedUnlocks.map(group => (
         <p key={group} className="end-game__section-text" role="status">
           {factionDetails[group].name} tokens unlocked. Choose one when you restart.
@@ -132,7 +133,7 @@ export const EndGame = ({
           <ul className="end-game__section-list">
             {achievements.map((achievement, index) => (
               <li key={index} className="end-game__section-list-item">
-                <strong>{achievement.title}:</strong> {achievement.description}
+                <strong><IllustratedLabel value={achievement.title} />:</strong> {achievement.description}
               </li>
             ))}
           </ul>
@@ -147,7 +148,7 @@ export const EndGame = ({
           <ul className="end-game__section-list">
             {ownedProperties.map(property => (
               <li key={property.id} className="end-game__section-list-item">
-                💀 {property.name}
+                <Artwork name="skull" /> {property.name}
               </li>
             ))}
           </ul>
@@ -194,7 +195,7 @@ export const EndGame = ({
         challengeLink={challengeLink}
       />
       <button className="end-game__button" onClick={onRestart}>
-        👻 Restart the Haunting Cycle 👻
+        <Artwork name="ghost" /> Restart the Haunting Cycle
       </button>
     </div>
   );

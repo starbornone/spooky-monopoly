@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 
 import { boardSpaces, MAX_TURNS, PLAYER_TOKENS, type PlayerToken } from "./data";
 import { EndGame } from "./EndGame";
+import { Artwork, IllustratedLabel } from "./Artwork";
 import { GameSidebar } from "./GameSidebar";
 import { PropertyPopup } from "./PropertyPopup";
 import { TokenPicker } from "./TokenPicker";
@@ -15,6 +16,8 @@ import { buySoloProperty, chooseSoloRoll, resolveSoloLanding } from "./utils/sol
 import { recordEarnedUnlocks, type PurchaseBehavior, type UnlockStatus } from "./utils/tokenUnlocks";
 
 import "./GameBoard.css";
+
+const ownershipArtwork = { vampires: "skull", elves: "seedling", humans: "coin-purse" } as const;
 
 export default function GameBoard() {
   const [gameEnded, setGameEnded] = useState(false);
@@ -244,13 +247,7 @@ export default function GameBoard() {
               {ownedProperties.includes(space.id) && <span className="game-board__space-status">Owned</span>}
               {playerToken && playerPosition === index && <span className="game-board__space-status">You</span>}
               {ownedProperties.includes(space.id) && (
-                <div className="game-board__space-owner">
-                  {playerToken?.group === "vampires"
-                    ? "💀"
-                    : playerToken?.group === "elves"
-                      ? "🌱"
-                      : "💰"}
-                </div>
+                <Artwork className="game-board__space-owner" name={ownershipArtwork[playerToken?.group ?? "humans"]} />
               )}
               {playerToken && playerPosition === index && (
                 <img
@@ -264,13 +261,13 @@ export default function GameBoard() {
             </div>
           ))}
 
-          <details className="game-board__log">
+          <details className="game-board__log" open>
             <summary>Turn log</summary>
             {[...gameLog]
               .reverse()
               .map(logEntry => (
                 <div key={logEntry.id} className="game-board__log-message">
-                  {logEntry.message}
+                  <IllustratedLabel value={logEntry.message} />
                 </div>
               ))}
           </details>

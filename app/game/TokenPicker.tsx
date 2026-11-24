@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { Artwork } from "./Artwork";
 
 import { PLAYER_TOKENS, PlayerToken } from "./data";
 import { factionDetails, isTokenUnlocked } from "./utils/tokenUnlocks";
@@ -168,7 +169,7 @@ export const TokenPicker = ({ onChoose, checkingSave, savedGame, invitation, cha
         <div className="token-picker__content">
           <h2 className="token-picker__title">Choose Your Token</h2>
           <div className="token-picker__loading">
-            <div className="token-picker__loading-spinner">👻</div>
+            <Artwork className="token-picker__loading-spinner" name="ghost" />
             <p>Loading tokens...</p>
           </div>
         </div>
@@ -233,7 +234,7 @@ export const TokenPicker = ({ onChoose, checkingSave, savedGame, invitation, cha
                 ref={el => {
                   buttonRefs.current[index] = el;
                 }}
-                className={`token-picker__option ${selected === token.id ? "token-picker__option--selected" : ""} ${isLocked ? "token-picker__option--locked" : ""}`}
+                className={`token-picker__option token-picker__option--${token.group} ${selected === token.id ? "token-picker__option--selected" : ""} ${isLocked ? "token-picker__option--locked" : ""}`}
                 onClick={() => {
                   if (isLocked) return;
                   setSelected(token.id);
@@ -245,8 +246,10 @@ export const TokenPicker = ({ onChoose, checkingSave, savedGame, invitation, cha
                 disabled={isLocked}
               >
                 <img className="token-picker__portrait" src={`/tokens/${token.id}.webp`} alt="" width={72} height={72} />
-                <span>{faction.name}</span>
-                {isLocked && <span className="token-picker__lock-info">Locked</span>}
+                <span className="token-picker__option-label">
+                  {faction.name}
+                  {isLocked && <span className="token-picker__lock-info">Locked</span>}
+                </span>
               </button>
             );
           })}

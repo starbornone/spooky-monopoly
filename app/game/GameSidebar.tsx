@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { Artwork } from "./Artwork";
 import { GameInfo } from "./GameInfo";
 import { GameIntro } from "./GameIntro";
 import { MoneyDisplay } from "./MoneyDisplay";
@@ -57,7 +58,7 @@ export const GameSidebar = ({
       </details>
 
       {!isEnded && (
-        <details className="game-sidebar__portfolio">
+        <details className="game-sidebar__portfolio" open>
           <summary>Properties and cash</summary>
           <MoneyDisplay
             money={money}
@@ -77,21 +78,12 @@ export const GameSidebar = ({
             onClick={canEndGame ? (onEndGame ?? (() => {})) : rollDice}
             ref={diceButtonRef}
           >
-            {!canRoll ? (
-              "Pick your token to start"
-            ) : isRolling ? (
+            {canRoll ? (
               <>
-                <span className="game-sidebar__dice-emoji">🎲</span> Rolling...
+                <Artwork className="game-sidebar__dice-artwork" name={canEndGame ? "ghost" : "dice"} />{" "}
+                {isRolling ? "Rolling..." : canEndGame ? "End Game" : "Roll Dice"}
               </>
-            ) : canEndGame ? (
-              <>
-                <span className="game-sidebar__dice-emoji">👻</span> End Game
-              </>
-            ) : (
-              <>
-                <span className="game-sidebar__dice-emoji">🎲</span> Roll Dice
-              </>
-            )}
+            ) : "Pick your token to start"}
           </button>
         </div>
       )}
