@@ -1,7 +1,7 @@
 {
   "schema": "name -roadmap/v1",
   "file": "roadmap",
-  "updatedAt": "2026-11-25T00:59:47+11:00",
+  "updatedAt": "2026-11-25T01:03:09+11:00",
   "project": {
     "key": "spooky-monopoly",
     "title": "Spooky Monopoly",
@@ -25,7 +25,7 @@
       "id": "define-two-seat-match-rules",
       "title": "Define and test the two-seat match rules",
       "group": "Multiplayer",
-      "notes": "Phase 3 (Later). Multiplayer stage 1 (supervised two-player pilot). Record the contract in docs/multiplayer-rules.md before changing the engine. Prototype equal human seats, random first seat, and 10 rounds with one turn per player per round. Define legal Buy and Pass actions for unowned properties. Test posted rent transferred to the owner on landing, capped by the payer’s cash, with both players remaining through the last round. Score cash plus owned property purchase value and allow ties. Include worked examples for unaffordable rent, a purchase, and a tie. Playtest first-seat advantage before tuning rent and pacing. The proposed pilot contract and test scenarios are in docs/multiplayer-rules.md. The pilot rules now have executable tests. A paired simulation over 1,000 roll sequences gave the first seat 1,114 wins out of 2,000 matches (55.7%). Human playtesting and any balance tuning are still pending."
+      "notes": "Phase 3 (Later). Multiplayer stage 1 (supervised two-player pilot). Record the contract in docs/multiplayer-rules.md before changing the engine. Prototype equal human seats, random first seat, and 10 rounds with one turn per player per round. Define legal Buy and Pass actions for unowned properties. Test posted rent transferred to the owner on landing, capped by the payer’s cash, with both players remaining through the last round. Score cash plus owned property purchase value and allow ties. Include worked examples for unaffordable rent, a purchase, and a tie. Playtest first-seat advantage before tuning rent and pacing. The proposed pilot contract and test scenarios are in docs/multiplayer-rules.md. The pilot rules have executable tests. A paired simulation over 1,000 roll sequences gave the first seat 1,114 wins out of 2,000 matches (55.7%). The local playtest command uses the pilot engine to run a controlled pair with identical rolls and swapped starters. Scripted inputs verified complete reports with scores, property ownership, rent, and feedback. Human playtesting and any balance tuning are still pending."
     },
     {
       "id": "add-multiplayer",

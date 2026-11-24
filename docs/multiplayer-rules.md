@@ -39,6 +39,14 @@ A seat is shown as away after 15 seconds without recorded activity. The remainin
 
 For the fairness pilot, play paired matches with the same recorded die sequence and swap which player goes first. Record scores, property ownership by round, rent transfers, turns at zero cash, and where each player felt the result was decided. Look for an advantage that persists after swapping seats before adjusting posted rent or round count.
 
+Two testers can share a terminal for a controlled pair of matches. Assign player letters A and B before starting and keep the same letters for both matches.
+
+```sh
+node --experimental-strip-types scripts/playtest-pilot.mjs 42 > pilot-pair-42.json
+```
+
+Press Enter at each roll prompt, type `buy` or `pass` at a property choice, and enter each player's feedback after each match. The command uses the pilot engine and the same rolls in both matches, with a different player starting the second match. Use a different seed for each pair of matches. The JSON records the seed, starters, scores, turn-by-turn rolls and rents, ownership by round, turns ending at zero cash, and each player's feedback. Keep the reports with your playtest notes outside the repository. Use the browser pilot below for invitation, reconnect, and interface checks.
+
 ## Executable checks
 
 Run `pnpm test` for the match rules and command tests. Run `pnpm check:pilot-balance` to repeat the seeded balance simulation. The simulation plays each of 1,000 roll sequences twice with the starting seat swapped. One policy buys whenever the player can afford a property. The other leaves at least $300 after a purchase.
