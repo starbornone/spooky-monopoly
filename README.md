@@ -19,7 +19,7 @@ Run `pnpm typecheck` for TypeScript checks and `pnpm build` to create a producti
 
 The game and local token unlocks work without Supabase. To enable shared statistics, copy `.env.example` to `.env.local` and set `NEXT_HALLOWOPOLY_SUPABASE_PROJECT_ID` to the project reference and `NEXT_HALLOWOPOLY_SUPABASE_KEY` to its publishable or legacy anon key.
 
-The API uses the existing `wwo_2025_spooky_game_stats` table. The Supabase project's policies must allow the configured public key to read and insert game results.
+The API uses `wwo_2025_spooky_game_stats`. See [shared statistics setup](docs/getting-started.md#enable-shared-statistics) to create the table and verify the public key can read and insert game results.
 
 ## Private multiplayer pilot
 

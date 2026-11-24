@@ -40,7 +40,9 @@ For shared results, make a copy of [`.env.example`](../.env.example) named `.env
 | `NEXT_HALLOWOPOLY_SUPABASE_PROJECT_ID` | Supabase project reference. |
 | `NEXT_HALLOWOPOLY_SUPABASE_KEY` | Supabase publishable or legacy anon key. |
 
-Use an existing project with the `wwo_2025_spooky_game_stats` table and policies permitting the configured public key to select and insert game results. The repository does not provision that table. Restart the dev server after editing `.env.local`. Check `/api/stats` for a JSON response with `success: true`, then finish a round in the intended test environment to check submission. An empty table can return zero games.
+Use a Supabase project with the Data API enabled. If it needs a new `wwo_2025_spooky_game_stats` table, run [setup-shared-stats.sql](../scripts/setup-shared-stats.sql) once in the SQL Editor. It creates the table and lets the `anon` role submit results and read the columns used in the aggregates. For an existing table, check that it meets the same contract before connecting the app.
+
+Restart the dev server after editing `.env.local`. Check `/api/stats` for a JSON response with `success: true`, then finish a round in the intended test environment to check submission. An empty table returns zero games.
 
 The statistics panel refreshes after the server confirms a submission. If the submission fails, you can still view and share your local result and start another game.
 
