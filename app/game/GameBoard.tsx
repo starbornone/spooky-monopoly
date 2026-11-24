@@ -7,6 +7,7 @@ import { EndGame } from "./EndGame";
 import { GameSidebar } from "./GameSidebar";
 import { PropertyPopup } from "./PropertyPopup";
 import { TokenPicker } from "./TokenPicker";
+import { recordEarnedUnlocks, type PurchaseBehavior, type UnlockStatus } from "./utils/tokenUnlocks";
 
 import "./GameBoard.css";
 
@@ -23,11 +24,8 @@ export default function GameBoard() {
   const [canEndGame, setCanEndGame] = useState(false);
   const [gameLog, setGameLog] = useState<{ message: string; id: number }[]>([]);
   const logIdCounter = useRef(0);
-  const [purchaseBehavior, setPurchaseBehavior] = useState<{
-    totalPropertiesLandedOn: number;
-    totalPropertiesBought: number;
-    totalAffordablePropertiesLandedOn: number;
-  }>({
+  const [earnedUnlocks, setEarnedUnlocks] = useState<(keyof UnlockStatus)[]>([]);
+  const [purchaseBehavior, setPurchaseBehavior] = useState<PurchaseBehavior>({
     totalPropertiesLandedOn: 0,
     totalPropertiesBought: 0,
     totalAffordablePropertiesLandedOn: 0,
@@ -342,6 +340,7 @@ export default function GameBoard() {
   const handleRestart = () => {
     setCanEndGame(false);
     setGameEnded(false);
+    setEarnedUnlocks([]);
     setMoney(1500);
     setOwnedProperties([]);
     setPlayerPosition(0);
@@ -358,7 +357,7 @@ export default function GameBoard() {
 
   if (gameEnded) {
     return (
-      <div className="game-board">
+      <div className="game-board game-board--ended">
         <GameSidebar
           canRoll={!!playerToken}
           currentSpace={currentSpace}
@@ -378,7 +377,7 @@ export default function GameBoard() {
             )}
             playerToken={playerToken}
             onRestart={handleRestart}
-            purchaseBehavior={purchaseBehavior}
+            earnedUnlocks={earnedUnlocks}
           />
         </div>
       </div>
@@ -393,7 +392,10 @@ export default function GameBoard() {
         currentSpace={currentSpace}
         isRolling={isRolling}
         money={money}
-        onEndGame={() => setGameEnded(true)}
+        onEndGame={() => {
+          setEarnedUnlocks(recordEarnedUnlocks(purchaseBehavior));
+          setGameEnded(true);
+        }}
         ownedProperties={ownedProperties}
         rollDice={rollDice}
         showPopup={showPopup}
@@ -416,6 +418,8 @@ export default function GameBoard() {
               }`}
             >
               <div className="game-board__space-name">{space.name}</div>
+              {ownedProperties.includes(space.id) && <span className="game-board__space-status">Owned</span>}
+              {playerToken && playerPosition === index && <span className="game-board__space-status">You</span>}
               {ownedProperties.includes(space.id) && (
                 <div className="game-board__space-owner">
                   {playerToken?.group === "vampires"
@@ -435,15 +439,16 @@ export default function GameBoard() {
             </div>
           ))}
 
-          <div className="game-board__log">
-            {gameLog
-              .sort((a, b) => b.id - a.id)
+          <details className="game-board__log">
+            <summary>Turn log</summary>
+            {[...gameLog]
+              .reverse()
               .map(logEntry => (
                 <div key={logEntry.id} className="game-board__log-message">
                   {logEntry.message}
                 </div>
               ))}
-          </div>
+          </details>
         </div>
       </div>
 

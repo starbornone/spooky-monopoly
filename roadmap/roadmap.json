@@ -28,24 +28,6 @@
       "notes": "Phase 1 (Now). Update GameBoard.css, GameSidebar.tsx, GameSidebar.css, and TokenPicker.css to keep the board, turn, cash, current space, and Roll action reachable. Move the intro and full log into expandable sections at narrow widths. Add text labels for active and owned spaces, visible focus, 44 CSS-pixel primary targets, and at least 4.5:1 contrast for primary button text. Verify 320px and 390px widths and tablet landscape."
     },
     {
-      "id": "clarify-turn-choices",
-      "title": "Make property decisions faster and explicit",
-      "group": "Gameplay",
-      "notes": "Phase 1 (Now). In GameBoard.tsx and PropertyPopup.tsx, reserve purchase decision controls for actionable choices. Give options short labels such as Buy for $60 or Pass, with faction flavour underneath. Confirm the intended vampire purchase rule before changing dismissal. Route clicks, keyboard actions, and dismissal through the same legal-action checks, including a clear continuation when purchase is unaffordable. Manage dialog focus and return it after the decision. Compare fixed-roll outcomes with the baseline."
-    },
-    {
-      "id": "explain-token-unlocks",
-      "title": "Explain faction rules and surface earned unlocks",
-      "group": "Gameplay",
-      "notes": "Phase 1 (Now). Give tokens readable faction names and a one-line play rule in TokenPicker.tsx. Explain how each locked faction becomes available and confirm newly earned unlocks in EndGame.tsx before restart."
-    },
-    {
-      "id": "cover-token-unlock-persistence",
-      "title": "Add regression coverage for browser token unlocks",
-      "group": "Gameplay",
-      "notes": "Phase 1 (Now). Cover a fresh browser origin, a qualifying unlock, and the token selection available after restart and reload in the same origin. Verify that the newly unlocked faction is explained in the results and available in the picker on restart and reload."
-    },
-    {
       "id": "verify-supabase-results-flow",
       "title": "Verify the results flow against a configured Supabase project",
       "group": "Global statistics",

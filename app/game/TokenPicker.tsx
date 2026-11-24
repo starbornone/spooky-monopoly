@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 
 import { PLAYER_TOKENS, PlayerToken } from "./data";
-import { isTokenUnlocked } from "./utils/tokenUnlocks";
+import { factionDetails, isTokenUnlocked } from "./utils/tokenUnlocks";
 
 import "./TokenPicker.css";
 
@@ -162,9 +162,9 @@ export const TokenPicker = ({ onChoose }: TokenPickerProps) => {
   }
 
   return (
-    <div className="token-picker" role="dialog" aria-modal="true">
+    <div className="token-picker" role="dialog" aria-modal="true" aria-labelledby="token-picker-title">
       <div className="token-picker__content">
-        <h2 className="token-picker__title">Choose Your Token</h2>
+        <h2 id="token-picker-title" className="token-picker__title">Choose Your Token</h2>
 
         <div className="token-picker__grid" key={refreshKey}>
           {PLAYER_TOKENS.map((token, index) => {
@@ -172,6 +172,7 @@ export const TokenPicker = ({ onChoose }: TokenPickerProps) => {
               token.group === "humans" ||
               isTokenUnlocked(token.group as "vampires" | "elves");
             const isLocked = !isUnlocked;
+            const faction = factionDetails[token.group];
 
             return (
               <button
@@ -186,10 +187,12 @@ export const TokenPicker = ({ onChoose }: TokenPickerProps) => {
                   setTimeout(() => onChoose(token), 180);
                 }}
                 onKeyDown={e => handleKeyDown(e, index)}
-                aria-label={`Choose token ${token.icon}`}
+                aria-label={`${isLocked ? "Locked " : "Choose "}${faction.name} token ${index % 3 + 1}`}
+                aria-describedby={`token-rules-${token.group}`}
                 disabled={isLocked}
               >
-                <span className="token-picker__emoji">{token.icon}</span>
+                <span className="token-picker__emoji" aria-hidden="true">{token.icon}</span>
+                <span>{faction.name}</span>
                 {isLocked ? (
                   <span className="token-picker__lock-info">🔒 Locked</span>
                 ) : (
@@ -206,10 +209,13 @@ export const TokenPicker = ({ onChoose }: TokenPickerProps) => {
           })}
         </div>
 
-        <p className="token-picker__hint">
-          Pick who you are in this haunting. Your choices determine what you can
-          and cannot do.
-        </p>
+        {Object.entries(factionDetails).map(([group, faction]) => (
+          <p id={`token-rules-${group}`} className="token-picker__hint" key={group}>
+            <strong>{faction.name}</strong> {faction.rule}
+            {group !== "humans" && !isTokenUnlocked(group as "vampires" | "elves") &&
+              "unlock" in faction && ` ${faction.unlock}`}
+          </p>
+        ))}
       </div>
     </div>
   );

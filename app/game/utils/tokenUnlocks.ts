@@ -41,3 +41,40 @@ export function unlockToken(tokenType: "vampires" | "elves"): void {
 export function isTokenUnlocked(tokenType: "vampires" | "elves"): boolean {
   return getUnlockStatus()[tokenType];
 }
+
+export interface PurchaseBehavior {
+  totalPropertiesLandedOn: number;
+  totalPropertiesBought: number;
+  totalAffordablePropertiesLandedOn: number;
+}
+
+export const factionDetails = {
+  vampires: {
+    name: "Vampire",
+    rule: "Buy every property you can afford.",
+    unlock: "Finish a game after buying every unowned property you landed on that you could afford."
+  },
+  humans: { name: "Human", rule: "Buy or pass when you land on a property." },
+  elves: {
+    name: "Elf",
+    rule: "Play without buying properties.",
+    unlock: "Land on an unowned property and finish the game without buying anything."
+  }
+} as const;
+
+export function recordEarnedUnlocks(behavior: PurchaseBehavior): (keyof UnlockStatus)[] {
+  const current = getUnlockStatus();
+  const earned: (keyof UnlockStatus)[] = [];
+
+  if (behavior.totalPropertiesLandedOn > 0) {
+    if (!current.vampires && behavior.totalAffordablePropertiesLandedOn > 0 &&
+      behavior.totalPropertiesBought === behavior.totalAffordablePropertiesLandedOn) {
+      earned.push("vampires");
+    }
+    if (!current.elves && behavior.totalPropertiesBought === 0) earned.push("elves");
+  }
+
+  for (const group of earned) current[group] = true;
+  if (earned.length > 0) setUnlockStatus(current);
+  return earned;
+}

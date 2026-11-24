@@ -70,6 +70,27 @@
       "group": "Global statistics",
       "notes": "Added request-state fixtures, checked missing configuration through production routes, and verified retry to the empty state during a simulated full game.",
       "completedAt": "2026-11-24T21:05:47+11:00"
+    },
+    {
+      "id": "clarify-turn-choices",
+      "title": "Make property decisions faster and explicit",
+      "group": "Gameplay",
+      "notes": "Exposed legal Buy, Pass, and Continue controls while preserving passive landing prompts. A vampire can continue when unable to buy but cannot dismiss an affordable purchase. Added action fixtures and verified a full round using fixed rolls in a simulated browser.",
+      "completedAt": "2026-11-24T21:05:47+11:00"
+    },
+    {
+      "id": "explain-token-unlocks",
+      "title": "Explain faction rules and surface earned unlocks",
+      "group": "Gameplay",
+      "notes": "The picker names each faction and explains its rules and unlock conditions. End-game results tell the player when a new faction is earned.",
+      "completedAt": "2026-11-24T21:05:47+11:00"
+    },
+    {
+      "id": "cover-token-unlock-persistence",
+      "title": "Add regression coverage for browser token unlocks",
+      "group": "Gameplay",
+      "notes": "Added storage and qualifying-result fixtures. Verified an elf unlock on restart and after a fresh mount on the same simulated browser origin.",
+      "completedAt": "2026-11-24T21:05:47+11:00"
     }
   ]
 }

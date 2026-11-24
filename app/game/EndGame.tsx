@@ -9,7 +9,7 @@ import {
   getReflectionText,
   getSpecialAchievements,
 } from "./utils";
-import { unlockToken } from "./utils/tokenUnlocks";
+import { factionDetails, type UnlockStatus } from "./utils/tokenUnlocks";
 
 import "./EndGame.css";
 
@@ -18,11 +18,7 @@ interface EndGameProps {
   ownedProperties: BoardSpace[];
   playerToken: PlayerToken | null;
   onRestart: () => void;
-  purchaseBehavior: {
-    totalPropertiesLandedOn: number;
-    totalPropertiesBought: number;
-    totalAffordablePropertiesLandedOn: number;
-  };
+  earnedUnlocks: (keyof UnlockStatus)[];
 }
 
 export const EndGame = ({
@@ -30,7 +26,7 @@ export const EndGame = ({
   ownedProperties,
   playerToken,
   onRestart,
-  purchaseBehavior,
+  earnedUnlocks,
 }: EndGameProps) => {
   const totalRevenue = ownedProperties.reduce(
     (sum, prop) => sum + (prop.rent || 0),
@@ -46,23 +42,6 @@ export const EndGame = ({
   const playerTitle = getPlayerTitle(ownedProperties);
 
   useEffect(() => {
-    // Check for token unlocks based on purchase behavior
-    if (purchaseBehavior.totalPropertiesLandedOn > 0) {
-      // Vampire unlock: bought everything you landed on that you could afford
-      if (
-        purchaseBehavior.totalAffordablePropertiesLandedOn > 0 &&
-        purchaseBehavior.totalPropertiesBought ===
-          purchaseBehavior.totalAffordablePropertiesLandedOn
-      ) {
-        unlockToken("vampires");
-      }
-
-      // Elf unlock: didn't buy anything
-      if (purchaseBehavior.totalPropertiesBought === 0) {
-        unlockToken("elves");
-      }
-    }
-
     try {
       const payloadKey = JSON.stringify({
         money,
@@ -112,12 +91,16 @@ export const EndGame = ({
     playerToken?.group,
     totalRevenue,
     totalPropertyValue,
-    purchaseBehavior,
   ]);
 
   return (
     <div className="end-game">
       <h1 className="end-game__title">{playerTitle}</h1>
+      {earnedUnlocks.map(group => (
+        <p key={group} className="end-game__section-text" role="status">
+          {factionDetails[group].name} tokens unlocked. Choose one when you restart.
+        </p>
+      ))}
 
       <div className="end-game__stats">
         <div className="end-game__stat">

@@ -10,7 +10,7 @@ Start with [Getting started](getting-started.md). Use the scripts in [`package.j
 | `pnpm build` | Compile and type-check the production app. |
 | `pnpm start` | Serve the existing production build. Run `pnpm build` first. |
 | `pnpm test:routes` | Run the production page and API compatibility checks after `pnpm build`. The test starts a local server without Supabase. |
-| `pnpm test` | Run statistics-state regression checks. |
+| `pnpm test` | Run statistics-state, property-action, and token-unlock regression checks. |
 
 Run `pnpm typecheck` and `pnpm build` for code changes and exercise the affected path manually. Run `pnpm test:routes` after route or configuration changes. For docs-only changes, check that local links resolve and validate any changed roadmap JSON against the [format contract](roadmap-format.md).
 
